@@ -43,9 +43,32 @@
             </div>
         </div>
 
+        <!-- AI Agents Quick Access -->
+        <div class="ai-agents-section">
+            <h3>🤖 AI Agents - ผู้ช่วยอัจฉริยะ</h3>
+            <div class="agent-cards">
+                <div class="agent-card" onclick="showSchedulerAgent()">
+                    <div class="agent-icon">📅</div>
+                    <h4>Content Scheduler</h4>
+                    <p>วิเคราะห์และแนะนำตารางเผยแพร่</p>
+                </div>
+                <div class="agent-card" onclick="showToast('เลือก content ที่ต้องการวิเคราะห์จากรายการด้านล่าง', 'info')">
+                    <div class="agent-icon">🚀</div>
+                    <h4>SEO/Viral Optimizer</h4>
+                    <p>ตรวจสอบศักยภาพไวรัล</p>
+                </div>
+                <div class="agent-card" onclick="showToast('เลือก content ที่ต้องการตรวจสอบจากรายการด้านล่าง', 'info')">
+                    <div class="agent-icon">📝</div>
+                    <h4>Script Reviewer</h4>
+                    <p>วิเคราะห์คุณภาพสคริปต์</p>
+                </div>
+            </div>
+        </div>
+
         <div class="toolbar">
             <button class="btn btn-primary" onclick="openAddModal()">+ เพิ่ม Content</button>
             <div class="filter-group">
+                <input type="text" id="searchInput" placeholder="🔍 ค้นหา content..." oninput="filterContent()" class="search-input">
                 <select id="filterStatus" onchange="filterContent()">
                     <option value="all">ทั้งหมด</option>
                     <option value="draft">Draft</option>
@@ -340,6 +363,37 @@
             <h2>⚙️ Settings</h2>
 
             <div class="settings-section">
+                <h3>🎨 Appearance</h3>
+
+                <div class="form-group">
+                    <label>Theme Mode</label>
+                    <div class="theme-toggle">
+                        <button class="theme-btn" onclick="setThemeMode('light')" data-theme="light">
+                            ☀️ Light
+                        </button>
+                        <button class="theme-btn active" onclick="setThemeMode('dark')" data-theme="dark">
+                            🌙 Dark
+                        </button>
+                        <button class="theme-btn" onclick="setThemeMode('auto')" data-theme="auto">
+                            🔄 Auto
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Color Theme</label>
+                    <div class="color-theme-selector">
+                        <button class="color-theme active" onclick="setColorTheme('blue')" data-color="blue" style="background: #6366f1"></button>
+                        <button class="color-theme" onclick="setColorTheme('purple')" data-color="purple" style="background: #8b5cf6"></button>
+                        <button class="color-theme" onclick="setColorTheme('green')" data-color="green" style="background: #10b981"></button>
+                        <button class="color-theme" onclick="setColorTheme('orange')" data-color="orange" style="background: #f59e0b"></button>
+                        <button class="color-theme" onclick="setColorTheme('pink')" data-color="pink" style="background: #ec4899"></button>
+                        <button class="color-theme" onclick="setColorTheme('red')" data-color="red" style="background: #ef4444"></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-section">
                 <h3>AI Configuration</h3>
                 <div class="form-group">
                     <label>AI Provider</label>
@@ -382,9 +436,22 @@
         </div>
     </div>
 
+    <!-- Toast Notifications Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p id="loadingText">กำลังโหลด...</p>
+        </div>
+    </div>
+
     <script src="app.js"></script>
     <script src="ai-helper.js"></script>
+    <script src="ai-agents.js"></script>
     <script src="calendar.js"></script>
     <script src="analytics.js"></script>
+    <script src="theme.js"></script>
 </body>
 </html>

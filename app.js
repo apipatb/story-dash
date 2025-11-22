@@ -53,12 +53,20 @@ function renderContents() {
     const contentList = document.getElementById('contentList');
     const filterStatus = document.getElementById('filterStatus').value;
     const filterCategory = document.getElementById('filterCategory').value;
+    const searchQuery = document.getElementById('searchInput')?.value.toLowerCase() || '';
 
     // Filter contents
     let filteredContents = contents.filter(content => {
         const statusMatch = filterStatus === 'all' || content.status === filterStatus;
         const categoryMatch = filterCategory === 'all' || content.category === filterCategory;
-        return statusMatch && categoryMatch;
+
+        // Search in title, script, and notes
+        const searchMatch = !searchQuery ||
+            content.title.toLowerCase().includes(searchQuery) ||
+            (content.script && content.script.toLowerCase().includes(searchQuery)) ||
+            (content.notes && content.notes.toLowerCase().includes(searchQuery));
+
+        return statusMatch && categoryMatch && searchMatch;
     });
 
     if (filteredContents.length === 0) {
@@ -121,6 +129,10 @@ function renderContents() {
                 <div class="content-actions">
                     <button class="btn btn-edit" onclick="editContent(${content.id})">✏️ แก้ไข</button>
                     <button class="btn btn-danger" onclick="deleteContent(${content.id})">🗑️ ลบ</button>
+                    <div class="agent-quick-actions">
+                        <button class="btn-icon" onclick="showSEOOptimizer(${content.id})" title="วิเคราะห์ SEO/Viral">🚀</button>
+                        <button class="btn-icon" onclick="showScriptReviewer(${content.id})" title="ตรวจสอบสคริปต์">📝</button>
+                    </div>
                 </div>
             </div>
         `;
@@ -151,7 +163,7 @@ function openAddModal() {
 
 // Close modal
 function closeModal() {
-    document.getElementById('contentModal').style.display = 'block';
+    document.getElementById('contentModal').style.display = 'none';
     editingId = null;
 }
 
@@ -361,7 +373,7 @@ function closeSettings() {
 function saveSettings() {
     saveAISettings();
     closeSettings();
-    alert('✅ บันทึกการตั้งค่าแล้ว');
+    showToast('บันทึกการตั้งค่าแล้ว', 'success');
 }
 
 // Export/Import functionality
@@ -374,7 +386,7 @@ function exportToJSON() {
     link.download = `story-dash-backup-${Date.now()}.json`;
     link.click();
     URL.revokeObjectURL(url);
-    alert('✅ Export JSON สำเร็จ!');
+    showToast('Export JSON สำเร็จ!', 'success');
 }
 
 function exportToCSV() {
@@ -402,7 +414,7 @@ function exportToCSV() {
     link.download = `story-dash-export-${Date.now()}.csv`;
     link.click();
     URL.revokeObjectURL(url);
-    alert('✅ Export CSV สำเร็จ!');
+    showToast('Export CSV สำเร็จ!', 'success');
 }
 
 function printContent() {
@@ -425,11 +437,11 @@ function importData(event) {
                     updateStats();
                     refreshAnalytics();
                     renderCalendar();
-                    alert('✅ นำเข้าข้อมูลสำเร็จ!');
+                    showToast('นำเข้าข้อมูลสำเร็จ!', 'success');
                 }
             }
         } catch (error) {
-            alert('❌ ไม่สามารถนำเข้าข้อมูลได้: ' + error.message);
+            showToast('ไม่สามารถนำเข้าข้อมูลได้: ' + error.message, 'error');
         }
     };
     reader.readAsText(file);
@@ -444,7 +456,7 @@ function clearAllData() {
             updateStats();
             refreshAnalytics();
             renderCalendar();
-            alert('✅ ลบข้อมูลทั้งหมดแล้ว');
+            showToast('ลบข้อมูลทั้งหมดแล้ว', 'success');
         }
     }
 }

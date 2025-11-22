@@ -104,7 +104,7 @@ function showDateContent(dateStr) {
     const dateContents = getContentByDate(dateStr);
 
     if (dateContents.length === 0) {
-        alert('ไม่มีคอนเทนต์ที่กำหนดวันนี้');
+        showToast('ไม่มีคอนเทนต์ที่กำหนดวันนี้', 'info');
         return;
     }
 
