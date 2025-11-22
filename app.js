@@ -1,0 +1,334 @@
+// Story Dashboard - Content Management App
+// Data Storage using LocalStorage
+
+let contents = [];
+let editingId = null;
+
+// Initialize app
+document.addEventListener('DOMContentLoaded', function() {
+    loadContents();
+    renderContents();
+    updateStats();
+});
+
+// Load contents from localStorage
+function loadContents() {
+    const stored = localStorage.getItem('storyDashContents');
+    if (stored) {
+        contents = JSON.parse(stored);
+    } else {
+        // Add sample content for first-time users
+        contents = getSampleContents();
+        saveContents();
+    }
+}
+
+// Save contents to localStorage
+function saveContents() {
+    localStorage.setItem('storyDashContents', JSON.stringify(contents));
+}
+
+// Get sample contents
+function getSampleContents() {
+    return [
+        {
+            id: Date.now(),
+            title: 'ทำไมต้องไม่หวีผมตอนเย็น?',
+            category: 'superstition',
+            platforms: ['tiktok', 'youtube'],
+            script: 'Hook: คุณเคยได้ยินคำห้ามว่า "ห้ามหวีผมตอนเย็น" ไหม?\n\nเนื้อหา:\n- ความเชื่อโบราณบอกว่าจะทำให้เสี่ยงตาย\n- แต่ทางวิทยาศาสตร์อธิบายว่า ผมที่หวีตอนเย็นอาจหักง่ายกว่า เพราะผมเปียกชื้นจากเหงื่อ\n\nCTA: คุณเคยได้ยินแบบนี้ไหม? แชร์ความเชื่อในครอบครัวคุณกันเถอะ!',
+            duration: 2,
+            schedule: null,
+            status: 'draft',
+            notes: '#ความเชื่อไทย #วิทยาศาสตร์ #เรื่องเล่า',
+            createdAt: Date.now() - 86400000
+        }
+    ];
+}
+
+// Render all contents
+function renderContents() {
+    const contentList = document.getElementById('contentList');
+    const filterStatus = document.getElementById('filterStatus').value;
+    const filterCategory = document.getElementById('filterCategory').value;
+
+    // Filter contents
+    let filteredContents = contents.filter(content => {
+        const statusMatch = filterStatus === 'all' || content.status === filterStatus;
+        const categoryMatch = filterCategory === 'all' || content.category === filterCategory;
+        return statusMatch && categoryMatch;
+    });
+
+    if (filteredContents.length === 0) {
+        contentList.innerHTML = `
+            <div class="empty-state">
+                <h3>😊 ยังไม่มี Content</h3>
+                <p>เริ่มเพิ่ม content ideas ของคุณได้เลย!</p>
+            </div>
+        `;
+        return;
+    }
+
+    // Sort by creation date (newest first)
+    filteredContents.sort((a, b) => b.createdAt - a.createdAt);
+
+    contentList.innerHTML = filteredContents.map(content => {
+        const categoryLabels = {
+            'superstition': 'ความเชื่อ/งมงาย',
+            'science': 'วิทยาศาสตร์',
+            'culture': 'วัฒนธรรม',
+            'legend': 'ตำนาน',
+            'other': 'อื่นๆ'
+        };
+
+        const statusLabels = {
+            'draft': 'Draft',
+            'ready': 'Ready to Post',
+            'posted': 'Posted'
+        };
+
+        const platformIcons = {
+            'tiktok': '🎵 TikTok',
+            'youtube': '📹 YouTube',
+            'facebook': '👥 Facebook'
+        };
+
+        return `
+            <div class="content-item status-${content.status}">
+                <div class="content-header">
+                    <div>
+                        <h3 class="content-title">${escapeHtml(content.title)}</h3>
+                        <div class="content-meta">
+                            <span class="badge badge-category">${categoryLabels[content.category]}</span>
+                            <span class="badge badge-status ${content.status}">${statusLabels[content.status]}</span>
+                            ${content.platforms.map(p => `<span class="badge badge-platform">${platformIcons[p]}</span>`).join('')}
+                        </div>
+                    </div>
+                </div>
+
+                ${content.script ? `<div class="content-script">${escapeHtml(content.script)}</div>` : ''}
+
+                <div class="content-info">
+                    ${content.duration ? `<span>⏱️ ${content.duration} นาที</span>` : ''}
+                    ${content.schedule ? `<span>📅 ${formatDate(content.schedule)}</span>` : ''}
+                    <span>🕐 สร้างเมื่อ ${formatDateTime(content.createdAt)}</span>
+                </div>
+
+                ${content.notes ? `<div class="content-info"><span>📝 ${escapeHtml(content.notes)}</span></div>` : ''}
+
+                <div class="content-actions">
+                    <button class="btn btn-edit" onclick="editContent(${content.id})">✏️ แก้ไข</button>
+                    <button class="btn btn-danger" onclick="deleteContent(${content.id})">🗑️ ลบ</button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Update statistics
+function updateStats() {
+    const draftCount = contents.filter(c => c.status === 'draft').length;
+    const readyCount = contents.filter(c => c.status === 'ready').length;
+    const postedCount = contents.filter(c => c.status === 'posted').length;
+    const totalCount = contents.length;
+
+    document.getElementById('draftCount').textContent = draftCount;
+    document.getElementById('readyCount').textContent = readyCount;
+    document.getElementById('postedCount').textContent = postedCount;
+    document.getElementById('totalCount').textContent = totalCount;
+}
+
+// Open add modal
+function openAddModal() {
+    editingId = null;
+    document.getElementById('modalTitle').textContent = 'เพิ่ม Content ใหม่';
+    document.getElementById('contentForm').reset();
+    document.getElementById('contentId').value = '';
+    document.getElementById('contentModal').style.display = 'block';
+}
+
+// Close modal
+function closeModal() {
+    document.getElementById('contentModal').style.display = 'block';
+    editingId = null;
+}
+
+// Edit content
+function editContent(id) {
+    const content = contents.find(c => c.id === id);
+    if (!content) return;
+
+    editingId = id;
+    document.getElementById('modalTitle').textContent = 'แก้ไข Content';
+    document.getElementById('contentId').value = content.id;
+    document.getElementById('contentTitle').value = content.title;
+    document.getElementById('contentCategory').value = content.category;
+    document.getElementById('contentScript').value = content.script || '';
+    document.getElementById('contentDuration').value = content.duration || '';
+    document.getElementById('contentSchedule').value = content.schedule || '';
+    document.getElementById('contentStatus').value = content.status;
+    document.getElementById('contentNotes').value = content.notes || '';
+
+    // Set platforms
+    document.getElementById('platformTikTok').checked = content.platforms.includes('tiktok');
+    document.getElementById('platformYouTube').checked = content.platforms.includes('youtube');
+    document.getElementById('platformFacebook').checked = content.platforms.includes('facebook');
+
+    document.getElementById('contentModal').style.display = 'block';
+}
+
+// Save content
+function saveContent(event) {
+    event.preventDefault();
+
+    const platforms = [];
+    if (document.getElementById('platformTikTok').checked) platforms.push('tiktok');
+    if (document.getElementById('platformYouTube').checked) platforms.push('youtube');
+    if (document.getElementById('platformFacebook').checked) platforms.push('facebook');
+
+    const contentData = {
+        title: document.getElementById('contentTitle').value,
+        category: document.getElementById('contentCategory').value,
+        platforms: platforms,
+        script: document.getElementById('contentScript').value,
+        duration: parseFloat(document.getElementById('contentDuration').value) || null,
+        schedule: document.getElementById('contentSchedule').value || null,
+        status: document.getElementById('contentStatus').value,
+        notes: document.getElementById('contentNotes').value
+    };
+
+    if (editingId) {
+        // Update existing content
+        const index = contents.findIndex(c => c.id === editingId);
+        if (index !== -1) {
+            contents[index] = { ...contents[index], ...contentData };
+        }
+    } else {
+        // Add new content
+        const newContent = {
+            id: Date.now(),
+            ...contentData,
+            createdAt: Date.now()
+        };
+        contents.push(newContent);
+    }
+
+    saveContents();
+    renderContents();
+    updateStats();
+    closeModal();
+}
+
+// Delete content
+function deleteContent(id) {
+    if (confirm('คุณแน่ใจว่าต้องการลบ content นี้?')) {
+        contents = contents.filter(c => c.id !== id);
+        saveContents();
+        renderContents();
+        updateStats();
+    }
+}
+
+// Filter content
+function filterContent() {
+    renderContents();
+}
+
+// Add series idea
+function addSeriesIdea(title) {
+    editingId = null;
+    document.getElementById('modalTitle').textContent = 'เพิ่ม Content ใหม่';
+    document.getElementById('contentForm').reset();
+    document.getElementById('contentId').value = '';
+
+    if (title !== 'Custom Idea') {
+        document.getElementById('contentTitle').value = title;
+        document.getElementById('contentCategory').value = 'superstition';
+    }
+
+    document.getElementById('contentModal').style.display = 'block';
+}
+
+// Utility functions
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function formatDate(dateString) {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('th-TH', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+}
+
+function formatDateTime(timestamp) {
+    const date = new Date(timestamp);
+    return date.toLocaleDateString('th-TH', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('contentModal');
+    if (event.target === modal) {
+        closeModal();
+    }
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+    // Escape key to close modal
+    if (e.key === 'Escape') {
+        closeModal();
+    }
+
+    // Ctrl/Cmd + N to add new content
+    if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+        e.preventDefault();
+        openAddModal();
+    }
+});
+
+// Export/Import functionality
+function exportData() {
+    const dataStr = JSON.stringify(contents, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `story-dash-backup-${Date.now()}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+}
+
+function importData(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const imported = JSON.parse(e.target.result);
+            if (Array.isArray(imported)) {
+                if (confirm('คุณต้องการแทนที่ข้อมูลเดิมทั้งหมดหรือไม่?')) {
+                    contents = imported;
+                    saveContents();
+                    renderContents();
+                    updateStats();
+                    alert('นำเข้าข้อมูลสำเร็จ!');
+                }
+            }
+        } catch (error) {
+            alert('ไม่สามารถนำเข้าข้อมูลได้: ' + error.message);
+        }
+    };
+    reader.readAsText(file);
+}

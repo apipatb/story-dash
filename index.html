@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Story Dashboard - จัดการคอนเทนต์</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📱 Story Dashboard</h1>
+            <p class="subtitle">จัดการ Content Ideas & Scripts</p>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stat-card draft">
+                <h3 id="draftCount">0</h3>
+                <p>Draft</p>
+            </div>
+            <div class="stat-card ready">
+                <h3 id="readyCount">0</h3>
+                <p>Ready to Post</p>
+            </div>
+            <div class="stat-card posted">
+                <h3 id="postedCount">0</h3>
+                <p>Posted</p>
+            </div>
+            <div class="stat-card total">
+                <h3 id="totalCount">0</h3>
+                <p>Total Ideas</p>
+            </div>
+        </div>
+
+        <div class="toolbar">
+            <button class="btn btn-primary" onclick="openAddModal()">+ เพิ่ม Content</button>
+            <div class="filter-group">
+                <select id="filterStatus" onchange="filterContent()">
+                    <option value="all">ทั้งหมด</option>
+                    <option value="draft">Draft</option>
+                    <option value="ready">Ready to Post</option>
+                    <option value="posted">Posted</option>
+                </select>
+                <select id="filterCategory" onchange="filterContent()">
+                    <option value="all">ทุกหมวด</option>
+                    <option value="superstition">ความเชื่อ/งมงาย</option>
+                    <option value="science">วิทยาศาสตร์</option>
+                    <option value="culture">วัฒนธรรม</option>
+                    <option value="legend">ตำนาน</option>
+                    <option value="other">อื่นๆ</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="contentList" class="content-list">
+            <!-- Content items will be inserted here -->
+        </div>
+
+        <!-- Add/Edit Modal -->
+        <div id="contentModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <h2 id="modalTitle">เพิ่ม Content ใหม่</h2>
+
+                <form id="contentForm" onsubmit="saveContent(event)">
+                    <input type="hidden" id="contentId">
+
+                    <div class="form-group">
+                        <label>หัวข้อ / ไอเดีย *</label>
+                        <input type="text" id="contentTitle" required placeholder="เช่น: ทำไมต้องไม่หวีผมตอนเย็น?">
+                    </div>
+
+                    <div class="form-group">
+                        <label>หมวดหมู่</label>
+                        <select id="contentCategory">
+                            <option value="superstition">ความเชื่อ/งมงาย</option>
+                            <option value="science">วิทยาศาสตร์</option>
+                            <option value="culture">วัฒนธรรม</option>
+                            <option value="legend">ตำนาน</option>
+                            <option value="other">อื่นๆ</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>แพลตฟอร์ม</label>
+                        <div class="checkbox-group">
+                            <label><input type="checkbox" id="platformTikTok" value="tiktok"> TikTok</label>
+                            <label><input type="checkbox" id="platformYouTube" value="youtube"> YouTube Shorts</label>
+                            <label><input type="checkbox" id="platformFacebook" value="facebook"> Facebook</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Script / เนื้อหา</label>
+                        <textarea id="contentScript" rows="8" placeholder="เขียน script หรือโน้ตไอเดียที่นี่...
+
+ตัวอย่าง:
+- Hook: ทำไมคนแก่ห้ามหวีผมตอนเย็น?
+- เนื้อหา: อธิบายความเชื่อ + เหตุผลทางวิทยาศาสตร์
+- CTA: กดไลก์ถ้าเคยได้ยินแบบนี้"></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>ความยาววิดีโอ (นาที)</label>
+                            <input type="number" id="contentDuration" min="0.5" max="10" step="0.5" placeholder="1-3">
+                        </div>
+
+                        <div class="form-group">
+                            <label>วันที่วางแผนโพสต์</label>
+                            <input type="date" id="contentSchedule">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>สถานะ</label>
+                        <select id="contentStatus">
+                            <option value="draft">Draft</option>
+                            <option value="ready">Ready to Post</option>
+                            <option value="posted">Posted</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>โน้ต / ข้อมูลเพิ่มเติม</label>
+                        <textarea id="contentNotes" rows="3" placeholder="บันทึกอะไรเพิ่มเติม เช่น ลิงก์อ้างอิง, hashtags, ฯลฯ"></textarea>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal()">ยกเลิก</button>
+                        <button type="submit" class="btn btn-primary">บันทึก</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Content Series Ideas Section -->
+        <div class="series-suggestions">
+            <h2>💡 ไอเดีย Content Series</h2>
+            <div class="series-grid">
+                <div class="series-card" onclick="addSeriesIdea('ทำไมต้องไม่หวีผมตอนเย็น?')">
+                    <h4>🪮 ทำไมต้องไม่หวีผมตอนเย็น?</h4>
+                    <p>อธิบายเหตุผล/วิทยาศาสตร์/ความเชื่อ</p>
+                </div>
+                <div class="series-card" onclick="addSeriesIdea('ห้ามนอนหัวหนึ่งเท้าหนึ่ง')">
+                    <h4>🛏️ ห้ามนอนหัวหนึ่งเท้าหนึ่ง</h4>
+                    <p>เพราะอะไร? ความเชื่อ vs วิทยาศาสตร์</p>
+                </div>
+                <div class="series-card" onclick="addSeriesIdea('ไม่ควรหวีผมยามเวลา X')">
+                    <h4>⏰ ไม่ควรหวีผมยามเวลา X</h4>
+                    <p>ความเชื่อเรื่องเวลาและผมของไทย</p>
+                </div>
+                <div class="series-card" onclick="addSeriesIdea('ตำนานและวิทยาศาสตร์')">
+                    <h4>🔬 ตำนานและวิทยาศาสตร์</h4>
+                    <p>Series อธิบายความเชื่อด้วยวิทยาศาสตร์</p>
+                </div>
+                <div class="series-card" onclick="addSeriesIdea('เพราะเหตุที่...')">
+                    <h4>📖 เพราะเหตุที่...</h4>
+                    <p>รูปแบบ storytelling แบบอธิบายเหตุผล</p>
+                </div>
+                <div class="series-card" onclick="addSeriesIdea('Custom Idea')">
+                    <h4>✨ ไอเดียของคุณ</h4>
+                    <p>เพิ่มไอเดียใหม่ๆ ของคุณเอง</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "name": "story-dash",
+  "version": "1.0.0",
+  "description": "Content Dashboard for managing stories, scripts, and social media content",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx http-server -p 8080 -o"
+  },
+  "keywords": ["content", "dashboard", "social-media", "tiktok", "youtube-shorts"],
+  "author": "",
+  "license": "MIT"
+}
