@@ -271,6 +271,15 @@ function editContent(id) {
     document.getElementById('platformYouTube').checked = content.platforms.includes('youtube');
     document.getElementById('platformFacebook').checked = content.platforms.includes('facebook');
 
+    // Set monetization data
+    document.getElementById('viewsTikTok').value = content.monetization?.views?.tiktok || '';
+    document.getElementById('viewsYouTube').value = content.monetization?.views?.youtube || '';
+    document.getElementById('viewsFacebook').value = content.monetization?.views?.facebook || '';
+    document.getElementById('revenueAds').value = content.monetization?.revenue?.ads || '';
+    document.getElementById('revenueBrand').value = content.monetization?.revenue?.brand || '';
+    document.getElementById('revenueAffiliate').value = content.monetization?.revenue?.affiliate || '';
+    document.getElementById('brandDealInfo').value = content.monetization?.brandDeal || '';
+
     document.getElementById('contentModal').style.display = 'block';
 }
 
@@ -291,7 +300,20 @@ function saveContent(event) {
         duration: parseFloat(document.getElementById('contentDuration').value) || null,
         schedule: document.getElementById('contentSchedule').value || null,
         status: document.getElementById('contentStatus').value,
-        notes: document.getElementById('contentNotes').value
+        notes: document.getElementById('contentNotes').value,
+        monetization: {
+            views: {
+                tiktok: parseInt(document.getElementById('viewsTikTok').value) || 0,
+                youtube: parseInt(document.getElementById('viewsYouTube').value) || 0,
+                facebook: parseInt(document.getElementById('viewsFacebook').value) || 0
+            },
+            revenue: {
+                ads: parseFloat(document.getElementById('revenueAds').value) || 0,
+                brand: parseFloat(document.getElementById('revenueBrand').value) || 0,
+                affiliate: parseFloat(document.getElementById('revenueAffiliate').value) || 0
+            },
+            brandDeal: document.getElementById('brandDealInfo').value || ''
+        }
     };
 
     if (editingId) {
@@ -313,6 +335,12 @@ function saveContent(event) {
     saveContents();
     renderContents();
     updateStats();
+
+    // Update revenue stats if on revenue view
+    if (typeof updateRevenueStats === 'function') {
+        updateRevenueStats();
+    }
+
     closeModal();
 }
 
@@ -427,6 +455,7 @@ function switchView(view) {
     // Show selected view
     const viewMap = {
         dashboard: 'dashboardView',
+        revenue: 'revenueView',
         calendar: 'calendarView',
         analytics: 'analyticsView',
         ai: 'aiView'
@@ -447,6 +476,10 @@ function switchView(view) {
             renderCalendar();
         } else if (view === 'analytics') {
             renderAnalytics();
+        } else if (view === 'revenue') {
+            if (typeof initRevenue === 'function') {
+                initRevenue();
+            }
         }
     }
 }

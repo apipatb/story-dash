@@ -24,6 +24,7 @@
         <!-- Navigation Tabs -->
         <nav class="nav-tabs">
             <button class="nav-tab active" onclick="switchView('dashboard')">📊 Dashboard</button>
+            <button class="nav-tab" onclick="switchView('revenue')">💰 รายได้</button>
             <button class="nav-tab" onclick="switchView('calendar')">📅 Calendar</button>
             <button class="nav-tab" onclick="switchView('analytics')">📈 Analytics</button>
             <button class="nav-tab" onclick="switchView('ai')">🤖 AI Assistant</button>
@@ -168,6 +169,46 @@
                         <textarea id="contentNotes" rows="3" placeholder="บันทึกอะไรเพิ่มเติม เช่น ลิงก์อ้างอิง, hashtags, ฯลฯ"></textarea>
                     </div>
 
+                    <!-- Monetization Section -->
+                    <div class="form-section-divider">
+                        <h3>💰 การทำเงิน</h3>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>👁️ Views (TikTok)</label>
+                            <input type="number" id="viewsTikTok" min="0" placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <label>👁️ Views (YouTube)</label>
+                            <input type="number" id="viewsYouTube" min="0" placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <label>👁️ Views (Facebook)</label>
+                            <input type="number" id="viewsFacebook" min="0" placeholder="0">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>💵 รายได้จาก Ads (฿)</label>
+                            <input type="number" id="revenueAds" min="0" step="0.01" placeholder="0.00">
+                        </div>
+                        <div class="form-group">
+                            <label>🤝 รายได้จาก Brand Deal (฿)</label>
+                            <input type="number" id="revenueBrand" min="0" step="0.01" placeholder="0.00">
+                        </div>
+                        <div class="form-group">
+                            <label>🔗 รายได้จาก Affiliate (฿)</label>
+                            <input type="number" id="revenueAffiliate" min="0" step="0.01" placeholder="0.00">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>📝 ข้อมูล Brand Deal</label>
+                        <textarea id="brandDealInfo" rows="2" placeholder="ชื่อ Brand, เงื่อนไข, เรท ฯลฯ (ถ้ามี)"></textarea>
+                    </div>
+
                     <div class="modal-actions">
                         <button type="button" class="btn btn-secondary" onclick="closeModal()">ยกเลิก</button>
                         <button type="submit" class="btn btn-primary">บันทึก</button>
@@ -208,6 +249,74 @@
         </div>
         </div>
         <!-- End Dashboard View -->
+
+        <!-- Revenue View -->
+        <div id="revenueView" class="view-container">
+            <h2>💰 รายได้และการทำเงิน</h2>
+
+            <!-- Revenue Stats -->
+            <div class="revenue-stats-grid">
+                <div class="revenue-stat-card total">
+                    <div class="stat-icon">💵</div>
+                    <h3 id="totalRevenue">฿0</h3>
+                    <p>รายได้รวม</p>
+                </div>
+                <div class="revenue-stat-card ads">
+                    <div class="stat-icon">📺</div>
+                    <h3 id="adsRevenue">฿0</h3>
+                    <p>จาก Ads</p>
+                </div>
+                <div class="revenue-stat-card brand">
+                    <div class="stat-icon">🤝</div>
+                    <h3 id="brandRevenue">฿0</h3>
+                    <p>Brand Deals</p>
+                </div>
+                <div class="revenue-stat-card affiliate">
+                    <div class="stat-icon">🔗</div>
+                    <h3 id="affiliateRevenue">฿0</h3>
+                    <p>Affiliate</p>
+                </div>
+            </div>
+
+            <!-- Quick Tools -->
+            <div class="revenue-tools">
+                <button class="btn btn-primary" onclick="openMoneyCalculator()">💰 คำนวณรายได้</button>
+                <button class="btn btn-primary" onclick="openPriceCalculator()">💵 คิดราคา Brand Deal</button>
+                <button class="btn btn-primary" onclick="showMoneyAdvisor()">🤖 AI Money Advisor</button>
+            </div>
+
+            <!-- Top Earners -->
+            <div class="revenue-section">
+                <h3>🏆 Content ที่ทำเงินสูงสุด</h3>
+                <div id="topEarnersList" class="top-earners-list">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Revenue by Platform -->
+            <div class="revenue-section">
+                <h3>📊 รายได้แยกตามแพลตฟอร์ม</h3>
+                <div id="platformRevenue" class="platform-revenue">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Brand Deals -->
+            <div class="revenue-section">
+                <h3>🤝 Brand Deals</h3>
+                <div id="brandDealsList" class="brand-deals-list">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Monthly Revenue Chart -->
+            <div class="revenue-section">
+                <h3>📈 รายได้รายเดือน</h3>
+                <div id="monthlyRevenueChart" class="chart-container">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
 
         <!-- Calendar View -->
         <div id="calendarView" class="view-container">
@@ -458,6 +567,7 @@
     <script src="app.js"></script>
     <script src="ai-helper.js"></script>
     <script src="ai-agents.js"></script>
+    <script src="revenue.js"></script>
     <script src="calendar.js"></script>
     <script src="analytics.js"></script>
     <script src="theme.js"></script>
