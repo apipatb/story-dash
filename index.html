@@ -10,9 +10,20 @@
     <div class="container">
         <header>
             <h1>📱 Story Dashboard</h1>
-            <p class="subtitle">จัดการ Content Ideas & Scripts</p>
+            <p class="subtitle">จัดการ Content Ideas & Scripts พร้อม AI Assistant</p>
         </header>
 
+        <!-- Navigation Tabs -->
+        <nav class="nav-tabs">
+            <button class="nav-tab active" onclick="switchView('dashboard')">📊 Dashboard</button>
+            <button class="nav-tab" onclick="switchView('calendar')">📅 Calendar</button>
+            <button class="nav-tab" onclick="switchView('analytics')">📈 Analytics</button>
+            <button class="nav-tab" onclick="switchView('ai')">🤖 AI Assistant</button>
+            <button class="nav-tab" onclick="openSettings()">⚙️ Settings</button>
+        </nav>
+
+        <!-- Dashboard View -->
+        <div id="dashboardView" class="view-container active">
         <div class="stats-grid">
             <div class="stat-card draft">
                 <h3 id="draftCount">0</h3>
@@ -164,8 +175,216 @@
                 </div>
             </div>
         </div>
+        </div>
+        <!-- End Dashboard View -->
+
+        <!-- Calendar View -->
+        <div id="calendarView" class="view-container">
+            <div class="calendar-header">
+                <button class="btn btn-secondary" onclick="previousMonth()">← เดือนก่อน</button>
+                <h2 id="calendarTitle">Calendar</h2>
+                <button class="btn btn-secondary" onclick="nextMonth()">เดือนถัดไป →</button>
+            </div>
+            <div id="calendarGrid" class="calendar-grid"></div>
+            <div id="calendarEvents" class="calendar-events">
+                <h3>Content Schedule</h3>
+                <div id="eventList"></div>
+            </div>
+        </div>
+
+        <!-- Analytics View -->
+        <div id="analyticsView" class="view-container">
+            <h2>📈 Analytics & Performance</h2>
+
+            <div class="analytics-grid">
+                <div class="analytics-card">
+                    <h3>Content by Category</h3>
+                    <canvas id="categoryChart"></canvas>
+                    <div id="categoryStats"></div>
+                </div>
+
+                <div class="analytics-card">
+                    <h3>Status Overview</h3>
+                    <canvas id="statusChart"></canvas>
+                    <div id="statusStats"></div>
+                </div>
+
+                <div class="analytics-card">
+                    <h3>Platform Distribution</h3>
+                    <div id="platformStats"></div>
+                </div>
+
+                <div class="analytics-card">
+                    <h3>Content Timeline</h3>
+                    <div id="timelineStats"></div>
+                </div>
+            </div>
+
+            <div class="analytics-card">
+                <h3>📊 Performance Tracking</h3>
+                <p class="info-text">เพิ่มข้อมูล views, likes, shares ในแต่ละ content เพื่อติดตามผลงาน</p>
+                <div id="performanceList"></div>
+            </div>
+        </div>
+
+        <!-- AI Assistant View -->
+        <div id="aiView" class="view-container">
+            <h2>🤖 AI Content Assistant</h2>
+            <p class="info-text">ใช้ AI ช่วยเขียน script, hook, CTA และอื่นๆ อัตโนมัติ</p>
+
+            <div class="ai-tools-grid">
+                <div class="ai-tool-card" onclick="openAITool('script')">
+                    <div class="ai-icon">📝</div>
+                    <h3>Script Generator</h3>
+                    <p>สร้าง script เต็มรูปแบบจากหัวข้อ</p>
+                </div>
+
+                <div class="ai-tool-card" onclick="openAITool('hook')">
+                    <div class="ai-icon">🎣</div>
+                    <h3>Hook Generator</h3>
+                    <p>สร้าง hook ดึงดูดใจภายใน 5 วินาที</p>
+                </div>
+
+                <div class="ai-tool-card" onclick="openAITool('cta')">
+                    <div class="ai-icon">📢</div>
+                    <h3>CTA Generator</h3>
+                    <p>สร้าง Call-to-Action ที่มีประสิทธิภาพ</p>
+                </div>
+
+                <div class="ai-tool-card" onclick="openAITool('hashtag')">
+                    <div class="ai-icon">#️⃣</div>
+                    <h3>Hashtag Generator</h3>
+                    <p>สร้าง hashtags ที่เหมาะสมกับเนื้อหา</p>
+                </div>
+
+                <div class="ai-tool-card" onclick="openAITool('improve')">
+                    <div class="ai-icon">✨</div>
+                    <h3>Content Improver</h3>
+                    <p>ปรับปรุง script ให้น่าสนใจมากขึ้น</p>
+                </div>
+
+                <div class="ai-tool-card" onclick="openAITool('ideas')">
+                    <div class="ai-icon">💡</div>
+                    <h3>Content Ideas</h3>
+                    <p>สร้างไอเดียคอนเทนต์ใหม่ๆ</p>
+                </div>
+
+                <div class="ai-tool-card" onclick="openAITool('title')">
+                    <div class="ai-icon">🏷️</div>
+                    <h3>Title Generator</h3>
+                    <p>สร้างหัวข้อที่น่าสนใจ</p>
+                </div>
+
+                <div class="ai-tool-card" onclick="openAITool('translate')">
+                    <div class="ai-icon">🌐</div>
+                    <h3>Translator</h3>
+                    <p>แปลและปรับแต่งภาษา</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- AI Tool Modal -->
+    <div id="aiModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAIModal()">&times;</span>
+            <h2 id="aiModalTitle">AI Assistant</h2>
+
+            <div id="aiToolContent">
+                <div class="form-group">
+                    <label id="aiInputLabel">ข้อมูลนำเข้า</label>
+                    <textarea id="aiInput" rows="4" placeholder="ใส่ข้อมูลที่นี่..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>ความยาวเป้าหมาย (วินาที)</label>
+                    <select id="aiDuration">
+                        <option value="30">30 วินาที (สั้น)</option>
+                        <option value="60" selected>60 วินาที (กลาง)</option>
+                        <option value="90">90 วินาที (ยาว)</option>
+                        <option value="180">3 นาที (ละเอียด)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>โทนเสียง</label>
+                    <select id="aiTone">
+                        <option value="casual">สบายๆ เป็นกันเอง</option>
+                        <option value="educational">สอนให้ความรู้</option>
+                        <option value="entertaining">สนุกสนาน</option>
+                        <option value="mysterious">ลึกลับ น่าสนใจ</option>
+                    </select>
+                </div>
+
+                <button class="btn btn-primary" onclick="generateAIContent()">
+                    <span id="generateBtnText">🤖 สร้างด้วย AI</span>
+                </button>
+
+                <div id="aiOutput" class="ai-output" style="display:none;">
+                    <label>ผลลัพธ์:</label>
+                    <textarea id="aiOutputText" rows="10"></textarea>
+                    <div class="modal-actions">
+                        <button class="btn btn-secondary" onclick="copyToClipboard()">📋 Copy</button>
+                        <button class="btn btn-primary" onclick="useAIOutput()">✅ ใช้ใน Content</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeSettings()">&times;</span>
+            <h2>⚙️ Settings</h2>
+
+            <div class="settings-section">
+                <h3>AI Configuration</h3>
+                <div class="form-group">
+                    <label>AI Provider</label>
+                    <select id="aiProvider" onchange="toggleAPIKeyField()">
+                        <option value="claude">Claude (Anthropic)</option>
+                        <option value="openai">OpenAI (GPT)</option>
+                        <option value="local" selected>Local AI (ฟรี - ใช้ templates)</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="apiKeyGroup" style="display:none;">
+                    <label>API Key</label>
+                    <input type="password" id="apiKey" placeholder="ใส่ API key ของคุณ">
+                    <small>API key จะเก็บไว้ใน browser ของคุณเท่านั้น</small>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h3>Export & Backup</h3>
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="exportToJSON()">📦 Export JSON</button>
+                    <button class="btn btn-secondary" onclick="exportToCSV()">📊 Export CSV</button>
+                    <button class="btn btn-secondary" onclick="printContent()">🖨️ Print</button>
+                </div>
+
+                <div class="form-group">
+                    <label>Import Data</label>
+                    <input type="file" id="importFile" accept=".json" onchange="importData(event)">
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h3>Data Management</h3>
+                <button class="btn btn-danger" onclick="clearAllData()">🗑️ ลบข้อมูลทั้งหมด</button>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn btn-primary" onclick="saveSettings()">บันทึก</button>
+            </div>
+        </div>
     </div>
 
     <script src="app.js"></script>
+    <script src="ai-helper.js"></script>
+    <script src="calendar.js"></script>
+    <script src="analytics.js"></script>
 </body>
 </html>
