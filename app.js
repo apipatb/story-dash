@@ -3,14 +3,69 @@
 
 let contents = [];
 let editingId = null;
+let searchTimeout = null;
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', function() {
-    loadContents();
-    renderContents();
-    updateStats();
-    initCalendar();
-    initAnalytics();
+    try {
+        console.log('📱 Story Dashboard initializing...');
+
+        // Load contents first
+        loadContents();
+        renderContents();
+        updateStats();
+
+        // Initialize calendar if available
+        if (typeof initCalendar === 'function') {
+            initCalendar();
+        } else {
+            console.warn('Calendar not loaded yet, will retry...');
+            setTimeout(() => {
+                if (typeof initCalendar === 'function') initCalendar();
+            }, 100);
+        }
+
+        // Initialize analytics if available
+        if (typeof initAnalytics === 'function') {
+            initAnalytics();
+        } else {
+            console.warn('Analytics not loaded yet, will retry...');
+            setTimeout(() => {
+                if (typeof initAnalytics === 'function') initAnalytics();
+            }, 100);
+        }
+
+        console.log('✅ Story Dashboard initialized successfully!');
+
+        // Hide initial loading screen
+        setTimeout(() => {
+            const loadingScreen = document.getElementById('initialLoading');
+            if (loadingScreen) {
+                loadingScreen.style.opacity = '0';
+                loadingScreen.style.transition = 'opacity 0.3s ease';
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                }, 300);
+            }
+        }, 500);
+    } catch (error) {
+        console.error('❌ Error initializing app:', error);
+        // Show error to user
+        document.body.innerHTML = `
+            <div style="padding: 40px; text-align: center; font-family: system-ui;">
+                <h1 style="color: #ef4444;">⚠️ เกิดข้อผิดพลาด</h1>
+                <p>ไม่สามารถโหลด Dashboard ได้</p>
+                <p style="color: #666;">กรุณา refresh หน้านี้ หรือลองใช้ browser อื่น</p>
+                <button onclick="location.reload()" style="padding: 10px 20px; margin-top: 20px; background: #6366f1; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                    🔄 Refresh
+                </button>
+                <details style="margin-top: 20px; text-align: left; max-width: 600px; margin-left: auto; margin-right: auto;">
+                    <summary style="cursor: pointer; color: #666;">Error details</summary>
+                    <pre style="background: #f5f5f5; padding: 10px; border-radius: 4px; overflow: auto;">${error.stack}</pre>
+                </details>
+            </div>
+        `;
+    }
 });
 
 // Load contents from localStorage
@@ -50,24 +105,30 @@ function getSampleContents() {
 
 // Render all contents
 function renderContents() {
-    const contentList = document.getElementById('contentList');
-    const filterStatus = document.getElementById('filterStatus').value;
-    const filterCategory = document.getElementById('filterCategory').value;
-    const searchQuery = document.getElementById('searchInput')?.value.toLowerCase() || '';
+    try {
+        const contentList = document.getElementById('contentList');
+        if (!contentList) {
+            console.error('contentList element not found');
+            return;
+        }
 
-    // Filter contents
-    let filteredContents = contents.filter(content => {
-        const statusMatch = filterStatus === 'all' || content.status === filterStatus;
-        const categoryMatch = filterCategory === 'all' || content.category === filterCategory;
+        const filterStatus = document.getElementById('filterStatus')?.value || 'all';
+        const filterCategory = document.getElementById('filterCategory')?.value || 'all';
+        const searchQuery = document.getElementById('searchInput')?.value.toLowerCase() || '';
 
-        // Search in title, script, and notes
-        const searchMatch = !searchQuery ||
-            content.title.toLowerCase().includes(searchQuery) ||
-            (content.script && content.script.toLowerCase().includes(searchQuery)) ||
-            (content.notes && content.notes.toLowerCase().includes(searchQuery));
+        // Filter contents
+        let filteredContents = contents.filter(content => {
+            const statusMatch = filterStatus === 'all' || content.status === filterStatus;
+            const categoryMatch = filterCategory === 'all' || content.category === filterCategory;
 
-        return statusMatch && categoryMatch && searchMatch;
-    });
+            // Search in title, script, and notes
+            const searchMatch = !searchQuery ||
+                content.title.toLowerCase().includes(searchQuery) ||
+                (content.script && content.script.toLowerCase().includes(searchQuery)) ||
+                (content.notes && content.notes.toLowerCase().includes(searchQuery));
+
+            return statusMatch && categoryMatch && searchMatch;
+        });
 
     if (filteredContents.length === 0) {
         contentList.innerHTML = `
@@ -137,19 +198,41 @@ function renderContents() {
             </div>
         `;
     }).join('');
+    } catch (error) {
+        console.error('Error rendering contents:', error);
+        const contentList = document.getElementById('contentList');
+        if (contentList) {
+            contentList.innerHTML = `
+                <div class="empty-state">
+                    <h3>⚠️ เกิดข้อผิดพลาด</h3>
+                    <p>ไม่สามารถแสดง content ได้</p>
+                    <button class="btn btn-primary" onclick="location.reload()">🔄 Refresh</button>
+                </div>
+            `;
+        }
+    }
 }
 
 // Update statistics
 function updateStats() {
-    const draftCount = contents.filter(c => c.status === 'draft').length;
-    const readyCount = contents.filter(c => c.status === 'ready').length;
-    const postedCount = contents.filter(c => c.status === 'posted').length;
-    const totalCount = contents.length;
+    try {
+        const draftCount = contents.filter(c => c.status === 'draft').length;
+        const readyCount = contents.filter(c => c.status === 'ready').length;
+        const postedCount = contents.filter(c => c.status === 'posted').length;
+        const totalCount = contents.length;
 
-    document.getElementById('draftCount').textContent = draftCount;
-    document.getElementById('readyCount').textContent = readyCount;
-    document.getElementById('postedCount').textContent = postedCount;
-    document.getElementById('totalCount').textContent = totalCount;
+        const draftEl = document.getElementById('draftCount');
+        const readyEl = document.getElementById('readyCount');
+        const postedEl = document.getElementById('postedCount');
+        const totalEl = document.getElementById('totalCount');
+
+        if (draftEl) draftEl.textContent = draftCount;
+        if (readyEl) readyEl.textContent = readyCount;
+        if (postedEl) postedEl.textContent = postedCount;
+        if (totalEl) totalEl.textContent = totalCount;
+    } catch (error) {
+        console.error('Error updating stats:', error);
+    }
 }
 
 // Open add modal
@@ -244,6 +327,14 @@ function deleteContent(id) {
 }
 
 // Filter content
+// Debounced search to improve performance
+function debounceSearch() {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        filterContent();
+    }, 300); // Wait 300ms after user stops typing
+}
+
 function filterContent() {
     renderContents();
 }

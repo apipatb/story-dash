@@ -33,10 +33,25 @@ const colorThemes = {
     }
 };
 
-// Initialize theme on load
+// Initialize theme IMMEDIATELY (before DOMContentLoaded to prevent flash)
+(function() {
+    try {
+        loadThemeSettings();
+        applyTheme();
+    } catch (error) {
+        console.error('Error loading theme:', error);
+        // Fallback to light mode
+        document.body.classList.remove('dark-mode');
+    }
+})();
+
+// Also apply on DOMContentLoaded as backup
 document.addEventListener('DOMContentLoaded', function() {
-    loadThemeSettings();
-    applyTheme();
+    try {
+        updateThemeUI();
+    } catch (error) {
+        console.error('Error updating theme UI:', error);
+    }
 });
 
 // Load theme settings

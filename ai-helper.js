@@ -616,5 +616,9 @@ function useAIOutput() {
 
 // Initialize AI settings on load
 document.addEventListener('DOMContentLoaded', function() {
-    loadAISettings();
+    try {
+        loadAISettings();
+    } catch (error) {
+        console.error('Error loading AI settings:', error);
+    }
 });
