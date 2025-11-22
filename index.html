@@ -15,10 +15,126 @@
         </div>
     </div>
 
+    <!-- Auth Screen (Login/Signup) -->
+    <div id="authScreen" style="display: none;">
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <h1>📱 Story Dashboard</h1>
+                    <p>จัดการ Content Ideas & Scripts พร้อม AI Assistant</p>
+                </div>
+
+                <!-- Login Form -->
+                <div id="loginForm" class="auth-form">
+                    <h2>เข้าสู่ระบบ</h2>
+
+                    <div class="form-group">
+                        <label>อีเมล</label>
+                        <input type="email" id="loginEmail" placeholder="your@email.com" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>รหัสผ่าน</label>
+                        <input type="password" id="loginPassword" placeholder="••••••••" required>
+                    </div>
+
+                    <button class="btn btn-primary btn-large" onclick="handleLogin()">เข้าสู่ระบบ</button>
+
+                    <div class="auth-divider">หรือ</div>
+
+                    <button class="btn btn-google" onclick="handleGoogleLogin()">
+                        <span>🔐</span> เข้าสู่ระบบด้วย Google
+                    </button>
+
+                    <p class="auth-switch">
+                        ยังไม่มีบัญชี? <a href="#" onclick="showSignupForm(); return false;">สมัครสมาชิก</a>
+                    </p>
+
+                    <p class="auth-switch">
+                        <a href="#" onclick="showSupabaseSetup(); return false;">⚙️ ตั้งค่า Supabase</a>
+                    </p>
+                </div>
+
+                <!-- Signup Form -->
+                <div id="signupForm" class="auth-form" style="display: none;">
+                    <h2>สมัครสมาชิก</h2>
+
+                    <div class="form-group">
+                        <label>ชื่อ</label>
+                        <input type="text" id="signupName" placeholder="ชื่อของคุณ" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>อีเมล</label>
+                        <input type="email" id="signupEmail" placeholder="your@email.com" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>รหัสผ่าน</label>
+                        <input type="password" id="signupPassword" placeholder="••••••••" required>
+                        <small>อย่างน้อย 6 ตัวอักษร</small>
+                    </div>
+
+                    <button class="btn btn-primary btn-large" onclick="handleSignup()">สมัครสมาชิก</button>
+
+                    <p class="auth-switch">
+                        มีบัญชีอยู่แล้ว? <a href="#" onclick="showLoginForm(); return false;">เข้าสู่ระบบ</a>
+                    </p>
+                </div>
+
+                <!-- Supabase Setup Form -->
+                <div id="supabaseSetupForm" class="auth-form" style="display: none;">
+                    <h2>⚙️ ตั้งค่า Supabase</h2>
+                    <p class="setup-instruction">กรอก Supabase URL และ Anon Key ของคุณ</p>
+
+                    <div class="form-group">
+                        <label>Supabase URL</label>
+                        <input type="url" id="supabaseUrl" placeholder="https://xxxxx.supabase.co" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Supabase Anon Key</label>
+                        <textarea id="supabaseKey" rows="3" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." required></textarea>
+                    </div>
+
+                    <button class="btn btn-primary btn-large" onclick="handleSupabaseSetup()">บันทึกและเชื่อมต่อ</button>
+
+                    <p class="auth-switch">
+                        <a href="#" onclick="showLoginForm(); return false;">← กลับไปหน้า Login</a>
+                    </p>
+
+                    <div class="setup-help">
+                        <p><strong>💡 หา Supabase credentials ได้ที่ไหน?</strong></p>
+                        <ol>
+                            <li>ไปที่ <a href="https://supabase.com" target="_blank">supabase.com</a></li>
+                            <li>สร้างโปรเจคใหม่ (ฟรี)</li>
+                            <li>ไปที่ Settings → API</li>
+                            <li>Copy "Project URL" และ "anon public" key</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- Use Without Login -->
+                <div class="use-offline">
+                    <p><a href="#" onclick="useOfflineMode(); return false;">📴 ใช้งานแบบ Offline (LocalStorage)</a></p>
+                    <small>ข้อมูลจะเก็บในเครื่องเท่านั้น ไม่ sync ข้ามอุปกรณ์</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <header>
-            <h1>📱 Story Dashboard</h1>
-            <p class="subtitle">จัดการ Content Ideas & Scripts พร้อม AI Assistant</p>
+            <div class="header-left">
+                <h1>📱 Story Dashboard</h1>
+                <p class="subtitle">จัดการ Content Ideas & Scripts พร้อม AI Assistant</p>
+            </div>
+            <div class="header-right" id="userInfo" style="display: none;">
+                <div class="user-menu">
+                    <span class="user-email" id="userEmail"></span>
+                    <button class="btn btn-secondary btn-sm" onclick="handleLogout()">ออกจากระบบ</button>
+                </div>
+            </div>
         </header>
 
         <!-- Navigation Tabs -->
@@ -564,12 +680,27 @@
         </div>
     </div>
 
+    <!-- Supabase JS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- JavaScript - Load order is important! -->
+    <!-- 1. Theme (provides UI utilities like showToast, showLoading) -->
+    <script src="theme.js"></script>
+
+    <!-- 2. Supabase (database and auth functions) -->
+    <script src="supabase.js"></script>
+
+    <!-- 3. Auth (authentication UI logic) -->
+    <script src="auth.js"></script>
+
+    <!-- 4. Core App (content management) -->
     <script src="app.js"></script>
+
+    <!-- 5. Feature modules -->
     <script src="ai-helper.js"></script>
     <script src="ai-agents.js"></script>
     <script src="revenue.js"></script>
     <script src="calendar.js"></script>
     <script src="analytics.js"></script>
-    <script src="theme.js"></script>
 </body>
 </html>

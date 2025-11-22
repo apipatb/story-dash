@@ -2223,3 +2223,279 @@ body.dark-mode .toast {
         grid-template-columns: 1fr;
     }
 }
+
+/* ==================== Authentication Screens ==================== */
+
+#authScreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 20px;
+}
+
+.auth-container {
+    width: 100%;
+    max-width: 450px;
+    animation: fadeInUp 0.5s ease;
+}
+
+.auth-card {
+    background: var(--card-bg);
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+.auth-form {
+    padding: 40px;
+}
+
+.auth-form h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: var(--primary-color);
+    font-size: 1.8rem;
+}
+
+.auth-form .logo {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 3rem;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.btn-large {
+    width: 100%;
+    padding: 14px;
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+}
+
+.btn-google {
+    background: white;
+    color: var(--text-primary);
+    border: 2px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s;
+}
+
+.btn-google:hover {
+    background: var(--bg-color);
+    border-color: var(--primary-color);
+}
+
+.btn-google span {
+    font-size: 1.2rem;
+}
+
+.auth-links {
+    text-align: center;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+.auth-links a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.auth-links a:hover {
+    color: var(--secondary-color);
+    text-decoration: underline;
+}
+
+.auth-divider {
+    text-align: center;
+    margin: 20px 0;
+    position: relative;
+}
+
+.auth-divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--border-color);
+}
+
+.auth-divider span {
+    background: var(--card-bg);
+    padding: 0 15px;
+    position: relative;
+    color: var(--text-secondary);
+}
+
+.offline-link {
+    text-align: center;
+    margin-top: 15px;
+}
+
+.offline-link a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.offline-link a:hover {
+    color: var(--primary-color);
+}
+
+/* Supabase Setup Form */
+.setup-info {
+    background: var(--bg-color);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.setup-info strong {
+    color: var(--primary-color);
+}
+
+.setup-info ol {
+    margin: 10px 0;
+    padding-left: 20px;
+}
+
+.setup-info li {
+    margin: 5px 0;
+}
+
+.setup-info a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.setup-info a:hover {
+    text-decoration: underline;
+}
+
+/* User Info Display */
+#userInfo {
+    display: none;
+    align-items: center;
+    gap: 15px;
+    padding: 10px 20px;
+    background: var(--card-bg);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 1.2rem;
+}
+
+.user-details {
+    flex: 1;
+}
+
+.user-details strong {
+    display: block;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+#userEmail {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+#userInfo .btn {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+}
+
+/* Animation */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Dark mode for auth screens */
+[data-theme="dark"] #authScreen {
+    background: linear-gradient(135deg, #1e1b4b 0%, #4c1d95 100%);
+}
+
+[data-theme="dark"] .auth-card {
+    background: var(--card-bg);
+}
+
+[data-theme="dark"] .setup-info {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Responsive Auth Screens */
+@media (max-width: 768px) {
+    .auth-form {
+        padding: 30px 20px;
+    }
+
+    .auth-form h2 {
+        font-size: 1.5rem;
+    }
+
+    .setup-info {
+        font-size: 0.85rem;
+    }
+}

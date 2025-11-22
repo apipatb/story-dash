@@ -1,9 +1,15 @@
 // Story Dashboard - Content Management App
-// Data Storage using LocalStorage
+// Data Storage using LocalStorage or Supabase
 
 let contents = [];
 let editingId = null;
 let searchTimeout = null;
+
+// Store references to Supabase database functions (defined in supabase.js)
+// We need to store these before we define our own functions with the same names
+const supabaseInsertContent = window.insertContent;
+const supabaseUpdateContent = window.updateContent;
+const supabaseDeleteContent = window.deleteContent;
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', function() {
@@ -284,7 +290,7 @@ function editContent(id) {
 }
 
 // Save content
-function saveContent(event) {
+async function saveContent(event) {
     event.preventDefault();
 
     const platforms = [];
@@ -318,9 +324,21 @@ function saveContent(event) {
 
     if (editingId) {
         // Update existing content
-        const index = contents.findIndex(c => c.id === editingId);
-        if (index !== -1) {
-            contents[index] = { ...contents[index], ...contentData };
+        if (isSupabaseConfigured() && currentUser) {
+            // Use Supabase
+            const result = await supabaseUpdateContent(editingId, contentData);
+            if (result.success) {
+                const index = contents.findIndex(c => c.id === editingId);
+                if (index !== -1) {
+                    contents[index] = result.data;
+                }
+            }
+        } else {
+            // Use localStorage
+            const index = contents.findIndex(c => c.id === editingId);
+            if (index !== -1) {
+                contents[index] = { ...contents[index], ...contentData };
+            }
         }
     } else {
         // Add new content
@@ -329,7 +347,17 @@ function saveContent(event) {
             ...contentData,
             createdAt: Date.now()
         };
-        contents.push(newContent);
+
+        if (isSupabaseConfigured() && currentUser) {
+            // Use Supabase
+            const result = await supabaseInsertContent(newContent);
+            if (result.success) {
+                contents.push(result.data);
+            }
+        } else {
+            // Use localStorage
+            contents.push(newContent);
+        }
     }
 
     saveContents();
@@ -345,12 +373,27 @@ function saveContent(event) {
 }
 
 // Delete content
-function deleteContent(id) {
-    if (confirm('คุณแน่ใจว่าต้องการลบ content นี้?')) {
+async function deleteContent(id) {
+    if (!confirm('คุณแน่ใจว่าต้องการลบ content นี้?')) return;
+
+    if (isSupabaseConfigured() && currentUser) {
+        // Use Supabase
+        const result = await supabaseDeleteContent(id);
+        if (result.success) {
+            contents = contents.filter(c => c.id !== id);
+        }
+    } else {
+        // Use localStorage
         contents = contents.filter(c => c.id !== id);
-        saveContents();
-        renderContents();
-        updateStats();
+    }
+
+    saveContents();
+    renderContents();
+    updateStats();
+
+    // Update revenue stats if on revenue view
+    if (typeof updateRevenueStats === 'function') {
+        updateRevenueStats();
     }
 }
 
