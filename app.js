@@ -9,6 +9,8 @@ document.addEventListener('DOMContentLoaded', function() {
     loadContents();
     renderContents();
     updateStats();
+    initCalendar();
+    initAnalytics();
 });
 
 // Load contents from localStorage
@@ -281,6 +283,14 @@ window.onclick = function(event) {
     if (event.target === modal) {
         closeModal();
     }
+    const aiModal = document.getElementById('aiModal');
+    if (event.target === aiModal) {
+        closeAIModal();
+    }
+    const settingsModal = document.getElementById('settingsModal');
+    if (event.target === settingsModal) {
+        closeSettings();
+    }
 }
 
 // Keyboard shortcuts
@@ -288,6 +298,8 @@ document.addEventListener('keydown', function(e) {
     // Escape key to close modal
     if (e.key === 'Escape') {
         closeModal();
+        closeAIModal();
+        closeSettings();
     }
 
     // Ctrl/Cmd + N to add new content
@@ -297,8 +309,63 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
+// View Switching
+function switchView(view) {
+    // Hide all views
+    document.querySelectorAll('.view-container').forEach(v => {
+        v.classList.remove('active');
+    });
+
+    // Remove active from all tabs
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+
+    // Show selected view
+    const viewMap = {
+        dashboard: 'dashboardView',
+        calendar: 'calendarView',
+        analytics: 'analyticsView',
+        ai: 'aiView'
+    };
+
+    const viewId = viewMap[view];
+    if (viewId) {
+        document.getElementById(viewId).classList.add('active');
+
+        // Update active tab
+        const tabIndex = Object.keys(viewMap).indexOf(view);
+        if (tabIndex >= 0) {
+            document.querySelectorAll('.nav-tab')[tabIndex].classList.add('active');
+        }
+
+        // Initialize view-specific content
+        if (view === 'calendar') {
+            renderCalendar();
+        } else if (view === 'analytics') {
+            renderAnalytics();
+        }
+    }
+}
+
+// Settings functions
+function openSettings() {
+    document.getElementById('settingsModal').style.display = 'block';
+    loadAISettings();
+}
+
+function closeSettings() {
+    document.getElementById('settingsModal').style.display = 'none';
+}
+
+function saveSettings() {
+    saveAISettings();
+    closeSettings();
+    alert('✅ บันทึกการตั้งค่าแล้ว');
+}
+
 // Export/Import functionality
-function exportData() {
+function exportToJSON() {
     const dataStr = JSON.stringify(contents, null, 2);
     const dataBlob = new Blob([dataStr], { type: 'application/json' });
     const url = URL.createObjectURL(dataBlob);
@@ -307,6 +374,39 @@ function exportData() {
     link.download = `story-dash-backup-${Date.now()}.json`;
     link.click();
     URL.revokeObjectURL(url);
+    alert('✅ Export JSON สำเร็จ!');
+}
+
+function exportToCSV() {
+    const headers = ['Title', 'Category', 'Status', 'Platforms', 'Duration', 'Schedule', 'Script', 'Notes'];
+    const rows = contents.map(c => [
+        c.title,
+        c.category,
+        c.status,
+        c.platforms.join(';'),
+        c.duration || '',
+        c.schedule || '',
+        c.script || '',
+        c.notes || ''
+    ]);
+
+    let csv = headers.join(',') + '\n';
+    rows.forEach(row => {
+        csv += row.map(field => `"${String(field).replace(/"/g, '""')}"`).join(',') + '\n';
+    });
+
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `story-dash-export-${Date.now()}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+    alert('✅ Export CSV สำเร็จ!');
+}
+
+function printContent() {
+    window.print();
 }
 
 function importData(event) {
@@ -323,12 +423,28 @@ function importData(event) {
                     saveContents();
                     renderContents();
                     updateStats();
-                    alert('นำเข้าข้อมูลสำเร็จ!');
+                    refreshAnalytics();
+                    renderCalendar();
+                    alert('✅ นำเข้าข้อมูลสำเร็จ!');
                 }
             }
         } catch (error) {
-            alert('ไม่สามารถนำเข้าข้อมูลได้: ' + error.message);
+            alert('❌ ไม่สามารถนำเข้าข้อมูลได้: ' + error.message);
         }
     };
     reader.readAsText(file);
+}
+
+function clearAllData() {
+    if (confirm('⚠️ คุณแน่ใจว่าต้องการลบข้อมูลทั้งหมด? การกระทำนี้ไม่สามารถย้อนกลับได้!')) {
+        if (confirm('❗ยืนยันอีกครั้ง: ลบข้อมูลทั้งหมดจริงหรือไม่?')) {
+            contents = [];
+            saveContents();
+            renderContents();
+            updateStats();
+            refreshAnalytics();
+            renderCalendar();
+            alert('✅ ลบข้อมูลทั้งหมดแล้ว');
+        }
+    }
 }
