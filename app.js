@@ -1,16 +1,77 @@
 // Story Dashboard - Content Management App
-// Data Storage using LocalStorage
+// Data Storage using LocalStorage or Supabase
 
 let contents = [];
 let editingId = null;
+let searchTimeout = null;
+
+// Store references to Supabase database functions (defined in supabase.js)
+// We need to store these before we define our own functions with the same names
+const supabaseInsertContent = window.insertContent;
+const supabaseUpdateContent = window.updateContent;
+const supabaseDeleteContent = window.deleteContent;
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', function() {
-    loadContents();
-    renderContents();
-    updateStats();
-    initCalendar();
-    initAnalytics();
+    try {
+        console.log('📱 Story Dashboard initializing...');
+
+        // Load contents first
+        loadContents();
+        renderContents();
+        updateStats();
+
+        // Initialize calendar if available
+        if (typeof initCalendar === 'function') {
+            initCalendar();
+        } else {
+            console.warn('Calendar not loaded yet, will retry...');
+            setTimeout(() => {
+                if (typeof initCalendar === 'function') initCalendar();
+            }, 100);
+        }
+
+        // Initialize analytics if available
+        if (typeof initAnalytics === 'function') {
+            initAnalytics();
+        } else {
+            console.warn('Analytics not loaded yet, will retry...');
+            setTimeout(() => {
+                if (typeof initAnalytics === 'function') initAnalytics();
+            }, 100);
+        }
+
+        console.log('✅ Story Dashboard initialized successfully!');
+
+        // Hide initial loading screen
+        setTimeout(() => {
+            const loadingScreen = document.getElementById('initialLoading');
+            if (loadingScreen) {
+                loadingScreen.style.opacity = '0';
+                loadingScreen.style.transition = 'opacity 0.3s ease';
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                }, 300);
+            }
+        }, 500);
+    } catch (error) {
+        console.error('❌ Error initializing app:', error);
+        // Show error to user
+        document.body.innerHTML = `
+            <div style="padding: 40px; text-align: center; font-family: system-ui;">
+                <h1 style="color: #ef4444;">⚠️ เกิดข้อผิดพลาด</h1>
+                <p>ไม่สามารถโหลด Dashboard ได้</p>
+                <p style="color: #666;">กรุณา refresh หน้านี้ หรือลองใช้ browser อื่น</p>
+                <button onclick="location.reload()" style="padding: 10px 20px; margin-top: 20px; background: #6366f1; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                    🔄 Refresh
+                </button>
+                <details style="margin-top: 20px; text-align: left; max-width: 600px; margin-left: auto; margin-right: auto;">
+                    <summary style="cursor: pointer; color: #666;">Error details</summary>
+                    <pre style="background: #f5f5f5; padding: 10px; border-radius: 4px; overflow: auto;">${error.stack}</pre>
+                </details>
+            </div>
+        `;
+    }
 });
 
 // Load contents from localStorage
@@ -50,16 +111,30 @@ function getSampleContents() {
 
 // Render all contents
 function renderContents() {
-    const contentList = document.getElementById('contentList');
-    const filterStatus = document.getElementById('filterStatus').value;
-    const filterCategory = document.getElementById('filterCategory').value;
+    try {
+        const contentList = document.getElementById('contentList');
+        if (!contentList) {
+            console.error('contentList element not found');
+            return;
+        }
 
-    // Filter contents
-    let filteredContents = contents.filter(content => {
-        const statusMatch = filterStatus === 'all' || content.status === filterStatus;
-        const categoryMatch = filterCategory === 'all' || content.category === filterCategory;
-        return statusMatch && categoryMatch;
-    });
+        const filterStatus = document.getElementById('filterStatus')?.value || 'all';
+        const filterCategory = document.getElementById('filterCategory')?.value || 'all';
+        const searchQuery = document.getElementById('searchInput')?.value.toLowerCase() || '';
+
+        // Filter contents
+        let filteredContents = contents.filter(content => {
+            const statusMatch = filterStatus === 'all' || content.status === filterStatus;
+            const categoryMatch = filterCategory === 'all' || content.category === filterCategory;
+
+            // Search in title, script, and notes
+            const searchMatch = !searchQuery ||
+                content.title.toLowerCase().includes(searchQuery) ||
+                (content.script && content.script.toLowerCase().includes(searchQuery)) ||
+                (content.notes && content.notes.toLowerCase().includes(searchQuery));
+
+            return statusMatch && categoryMatch && searchMatch;
+        });
 
     if (filteredContents.length === 0) {
         contentList.innerHTML = `
@@ -121,23 +196,49 @@ function renderContents() {
                 <div class="content-actions">
                     <button class="btn btn-edit" onclick="editContent(${content.id})">✏️ แก้ไข</button>
                     <button class="btn btn-danger" onclick="deleteContent(${content.id})">🗑️ ลบ</button>
+                    <div class="agent-quick-actions">
+                        <button class="btn-icon" onclick="showSEOOptimizer(${content.id})" title="วิเคราะห์ SEO/Viral">🚀</button>
+                        <button class="btn-icon" onclick="showScriptReviewer(${content.id})" title="ตรวจสอบสคริปต์">📝</button>
+                    </div>
                 </div>
             </div>
         `;
     }).join('');
+    } catch (error) {
+        console.error('Error rendering contents:', error);
+        const contentList = document.getElementById('contentList');
+        if (contentList) {
+            contentList.innerHTML = `
+                <div class="empty-state">
+                    <h3>⚠️ เกิดข้อผิดพลาด</h3>
+                    <p>ไม่สามารถแสดง content ได้</p>
+                    <button class="btn btn-primary" onclick="location.reload()">🔄 Refresh</button>
+                </div>
+            `;
+        }
+    }
 }
 
 // Update statistics
 function updateStats() {
-    const draftCount = contents.filter(c => c.status === 'draft').length;
-    const readyCount = contents.filter(c => c.status === 'ready').length;
-    const postedCount = contents.filter(c => c.status === 'posted').length;
-    const totalCount = contents.length;
+    try {
+        const draftCount = contents.filter(c => c.status === 'draft').length;
+        const readyCount = contents.filter(c => c.status === 'ready').length;
+        const postedCount = contents.filter(c => c.status === 'posted').length;
+        const totalCount = contents.length;
 
-    document.getElementById('draftCount').textContent = draftCount;
-    document.getElementById('readyCount').textContent = readyCount;
-    document.getElementById('postedCount').textContent = postedCount;
-    document.getElementById('totalCount').textContent = totalCount;
+        const draftEl = document.getElementById('draftCount');
+        const readyEl = document.getElementById('readyCount');
+        const postedEl = document.getElementById('postedCount');
+        const totalEl = document.getElementById('totalCount');
+
+        if (draftEl) draftEl.textContent = draftCount;
+        if (readyEl) readyEl.textContent = readyCount;
+        if (postedEl) postedEl.textContent = postedCount;
+        if (totalEl) totalEl.textContent = totalCount;
+    } catch (error) {
+        console.error('Error updating stats:', error);
+    }
 }
 
 // Open add modal
@@ -151,7 +252,7 @@ function openAddModal() {
 
 // Close modal
 function closeModal() {
-    document.getElementById('contentModal').style.display = 'block';
+    document.getElementById('contentModal').style.display = 'none';
     editingId = null;
 }
 
@@ -176,11 +277,20 @@ function editContent(id) {
     document.getElementById('platformYouTube').checked = content.platforms.includes('youtube');
     document.getElementById('platformFacebook').checked = content.platforms.includes('facebook');
 
+    // Set monetization data
+    document.getElementById('viewsTikTok').value = content.monetization?.views?.tiktok || '';
+    document.getElementById('viewsYouTube').value = content.monetization?.views?.youtube || '';
+    document.getElementById('viewsFacebook').value = content.monetization?.views?.facebook || '';
+    document.getElementById('revenueAds').value = content.monetization?.revenue?.ads || '';
+    document.getElementById('revenueBrand').value = content.monetization?.revenue?.brand || '';
+    document.getElementById('revenueAffiliate').value = content.monetization?.revenue?.affiliate || '';
+    document.getElementById('brandDealInfo').value = content.monetization?.brandDeal || '';
+
     document.getElementById('contentModal').style.display = 'block';
 }
 
 // Save content
-function saveContent(event) {
+async function saveContent(event) {
     event.preventDefault();
 
     const platforms = [];
@@ -196,14 +306,39 @@ function saveContent(event) {
         duration: parseFloat(document.getElementById('contentDuration').value) || null,
         schedule: document.getElementById('contentSchedule').value || null,
         status: document.getElementById('contentStatus').value,
-        notes: document.getElementById('contentNotes').value
+        notes: document.getElementById('contentNotes').value,
+        monetization: {
+            views: {
+                tiktok: parseInt(document.getElementById('viewsTikTok').value) || 0,
+                youtube: parseInt(document.getElementById('viewsYouTube').value) || 0,
+                facebook: parseInt(document.getElementById('viewsFacebook').value) || 0
+            },
+            revenue: {
+                ads: parseFloat(document.getElementById('revenueAds').value) || 0,
+                brand: parseFloat(document.getElementById('revenueBrand').value) || 0,
+                affiliate: parseFloat(document.getElementById('revenueAffiliate').value) || 0
+            },
+            brandDeal: document.getElementById('brandDealInfo').value || ''
+        }
     };
 
     if (editingId) {
         // Update existing content
-        const index = contents.findIndex(c => c.id === editingId);
-        if (index !== -1) {
-            contents[index] = { ...contents[index], ...contentData };
+        if (isSupabaseConfigured() && currentUser) {
+            // Use Supabase
+            const result = await supabaseUpdateContent(editingId, contentData);
+            if (result.success) {
+                const index = contents.findIndex(c => c.id === editingId);
+                if (index !== -1) {
+                    contents[index] = result.data;
+                }
+            }
+        } else {
+            // Use localStorage
+            const index = contents.findIndex(c => c.id === editingId);
+            if (index !== -1) {
+                contents[index] = { ...contents[index], ...contentData };
+            }
         }
     } else {
         // Add new content
@@ -212,26 +347,65 @@ function saveContent(event) {
             ...contentData,
             createdAt: Date.now()
         };
-        contents.push(newContent);
+
+        if (isSupabaseConfigured() && currentUser) {
+            // Use Supabase
+            const result = await supabaseInsertContent(newContent);
+            if (result.success) {
+                contents.push(result.data);
+            }
+        } else {
+            // Use localStorage
+            contents.push(newContent);
+        }
     }
 
     saveContents();
     renderContents();
     updateStats();
+
+    // Update revenue stats if on revenue view
+    if (typeof updateRevenueStats === 'function') {
+        updateRevenueStats();
+    }
+
     closeModal();
 }
 
 // Delete content
-function deleteContent(id) {
-    if (confirm('คุณแน่ใจว่าต้องการลบ content นี้?')) {
+async function deleteContent(id) {
+    if (!confirm('คุณแน่ใจว่าต้องการลบ content นี้?')) return;
+
+    if (isSupabaseConfigured() && currentUser) {
+        // Use Supabase
+        const result = await supabaseDeleteContent(id);
+        if (result.success) {
+            contents = contents.filter(c => c.id !== id);
+        }
+    } else {
+        // Use localStorage
         contents = contents.filter(c => c.id !== id);
-        saveContents();
-        renderContents();
-        updateStats();
+    }
+
+    saveContents();
+    renderContents();
+    updateStats();
+
+    // Update revenue stats if on revenue view
+    if (typeof updateRevenueStats === 'function') {
+        updateRevenueStats();
     }
 }
 
 // Filter content
+// Debounced search to improve performance
+function debounceSearch() {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        filterContent();
+    }, 300); // Wait 300ms after user stops typing
+}
+
 function filterContent() {
     renderContents();
 }
@@ -324,6 +498,7 @@ function switchView(view) {
     // Show selected view
     const viewMap = {
         dashboard: 'dashboardView',
+        revenue: 'revenueView',
         calendar: 'calendarView',
         analytics: 'analyticsView',
         ai: 'aiView'
@@ -344,6 +519,10 @@ function switchView(view) {
             renderCalendar();
         } else if (view === 'analytics') {
             renderAnalytics();
+        } else if (view === 'revenue') {
+            if (typeof initRevenue === 'function') {
+                initRevenue();
+            }
         }
     }
 }
@@ -361,7 +540,7 @@ function closeSettings() {
 function saveSettings() {
     saveAISettings();
     closeSettings();
-    alert('✅ บันทึกการตั้งค่าแล้ว');
+    showToast('บันทึกการตั้งค่าแล้ว', 'success');
 }
 
 // Export/Import functionality
@@ -374,7 +553,7 @@ function exportToJSON() {
     link.download = `story-dash-backup-${Date.now()}.json`;
     link.click();
     URL.revokeObjectURL(url);
-    alert('✅ Export JSON สำเร็จ!');
+    showToast('Export JSON สำเร็จ!', 'success');
 }
 
 function exportToCSV() {
@@ -402,7 +581,7 @@ function exportToCSV() {
     link.download = `story-dash-export-${Date.now()}.csv`;
     link.click();
     URL.revokeObjectURL(url);
-    alert('✅ Export CSV สำเร็จ!');
+    showToast('Export CSV สำเร็จ!', 'success');
 }
 
 function printContent() {
@@ -425,11 +604,11 @@ function importData(event) {
                     updateStats();
                     refreshAnalytics();
                     renderCalendar();
-                    alert('✅ นำเข้าข้อมูลสำเร็จ!');
+                    showToast('นำเข้าข้อมูลสำเร็จ!', 'success');
                 }
             }
         } catch (error) {
-            alert('❌ ไม่สามารถนำเข้าข้อมูลได้: ' + error.message);
+            showToast('ไม่สามารถนำเข้าข้อมูลได้: ' + error.message, 'error');
         }
     };
     reader.readAsText(file);
@@ -444,7 +623,7 @@ function clearAllData() {
             updateStats();
             refreshAnalytics();
             renderCalendar();
-            alert('✅ ลบข้อมูลทั้งหมดแล้ว');
+            showToast('ลบข้อมูลทั้งหมดแล้ว', 'success');
         }
     }
 }

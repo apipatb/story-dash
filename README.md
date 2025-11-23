@@ -13,6 +13,14 @@ Dashboard ครบฟีเจอร์ สำหรับจัดการ co
 - ✅ **รองรับหลายแพลตฟอร์ม** - TikTok, YouTube Shorts, Facebook
 - ✅ **สถิติแบบ Real-time** - เห็นภาพรวมงานทั้งหมด
 
+### 🔐 Database & Authentication (NEW!)
+- ✅ **Cloud Storage with Supabase** - เก็บข้อมูลบน cloud พร้อม sync ข้ามอุปกรณ์
+- ✅ **User Authentication** - ระบบ Login/Signup ด้วย Email/Password หรือ Google OAuth
+- ✅ **Real-time Sync** - ข้อมูลอัพเดทแบบ real-time ทุกอุปกรณ์
+- ✅ **Offline Mode** - ใช้งานแบบออฟไลน์ด้วย LocalStorage (ไม่ต้อง login)
+- ✅ **Data Migration** - ย้ายข้อมูลจาก LocalStorage ไป Supabase อัตโนมัติ
+- ✅ **Secure & Private** - Row Level Security ปกป้องข้อมูลของแต่ละคน
+
 ### 📅 Calendar View
 - ✅ **Content Calendar** - ดูปฏิทินการโพสต์รายเดือน
 - ✅ **Schedule Overview** - เห็นคอนเทนต์ที่กำหนดโพสต์แต่ละวัน
@@ -41,18 +49,58 @@ Dashboard ครบฟีเจอร์ สำหรับจัดการ co
 - ✅ **Print-Friendly** - พิมพ์รายงานได้สวยงาม
 - ✅ **Import Data** - นำเข้าข้อมูลจาก backup
 
-### 🎨 UI/UX
+### 🎨 UI/UX (Enhanced!)
 - ✅ **Responsive Design** - ใช้งานได้ทั้งมือถือและคอมพิวเตอร์
-- ✅ **Dark Mode Ready** - UI ที่สบายตา
+- ✅ **Dark Mode** - โหมดมืด/สว่าง/auto ตามระบบ
+- ✅ **Color Themes** - 6 สีธีมให้เลือก (Blue, Purple, Green, Orange, Pink, Red)
+- ✅ **Toast Notifications** - แจ้งเตือนแบบสวยงามและไม่รบกวน
+- ✅ **Smooth Animations** - Animation และ transition ที่ลื่นไหล
+- ✅ **Loading States** - แสดงสถานะกำลังโหลดเมื่อใช้ AI
+- ✅ **Search Function** - ค้นหา content ได้อย่างรวดเร็ว
 - ✅ **Keyboard Shortcuts** - ทำงานได้เร็วขึ้น (Ctrl+N, Escape)
 - ✅ **ข้อมูลเก็บอัตโนมัติ** - ใช้ LocalStorage ไม่ต้องติดตั้งฐานข้อมูล
 
+### 🤖 AI Agents - ผู้ช่วยอัจฉริยะ (NEW!)
+- ✅ **Content Scheduler Agent** 📅
+  - วิเคราะห์ตารางการโพสต์
+  - แนะนำเวลาที่เหมาะสมสำหรับแต่ละแพลตฟอร์ม
+  - ตรวจจับความขัดแย้งและช่วงว่างในตาราง
+  - แนะนำการกระจายเนื้อหาให้สม่ำเสมอ
+
+- ✅ **SEO/Viral Optimizer Agent** 🚀
+  - วิเคราะห์ศักยภาพไวรัลของเนื้อหา (คะแนน 0-100)
+  - ตรวจสอบ Hook, CTA, Hashtags
+  - แนะนำปรับปรุงหัวข้อและเนื้อหา
+  - ให้คะแนนและข้อเสนอแนะเฉพาะเจาะจง
+
+- ✅ **Script Reviewer Agent** 📝
+  - วิเคราะห์คุณภาพสคริปต์
+  - ตรวจสอบโครงสร้าง (Hook, Content, CTA)
+  - ประเมินความยาวและความเหมาะสม
+  - แนะนำปรับปรุงการมีส่วนร่วม
+
 ## 🚀 วิธีใช้งาน
+
+### เลือกโหมดการใช้งาน
+
+**Option 1: Supabase Mode (แนะนำ)** - Cloud storage + Multi-device sync
+- ✅ ข้อมูลปลอดภัยบน cloud
+- ✅ Sync ข้ามอุปกรณ์
+- ✅ Real-time updates
+- ✅ Backup อัตโนมัติ
+- 📖 [ดูวิธีตั้งค่า Supabase](SETUP_SUPABASE.md)
+
+**Option 2: Offline Mode** - LocalStorage only
+- ✅ ใช้งานได้ทันที ไม่ต้องตั้งค่า
+- ✅ ไม่ต้อง login
+- ❌ ข้อมูลเก็บในเครื่องเท่านั้น
+- ❌ ไม่ sync ข้ามอุปกรณ์
 
 ### วิธีที่ 1: เปิดไฟล์ HTML โดยตรง
 1. ดาวน์โหลดหรือ clone โปรเจคนี้
 2. เปิดไฟล์ `index.html` ในเบราว์เซอร์ (Chrome, Firefox, Safari, Edge)
-3. เริ่มใช้งานได้เลย!
+3. **ตั้งค่า Supabase** (ถ้าต้องการใช้ cloud mode) หรือคลิก "ใช้งานแบบ Offline"
+4. เริ่มใช้งานได้เลย!
 
 ### วิธีที่ 2: รันด้วย HTTP Server (แนะนำ)
 ```bash
@@ -97,6 +145,18 @@ http-server -p 8080
 - ใช้ตัวกรองด้านบน เลือก:
   - **สถานะ**: Draft, Ready to Post, Posted หรือทั้งหมด
   - **หมวดหมู่**: ความเชื่อ, วิทยาศาสตร์, วัฒนธรรม, ฯลฯ
+
+### ค้นหา Content (NEW!)
+- พิมพ์คำค้นหาในช่อง **🔍 ค้นหา content...**
+- ค้นหาได้ทั้งในหัวข้อ, สคริปต์, และโน้ต
+- ทำงานแบบ real-time ไม่ต้องกดปุ่ม
+
+### ปรับแต่ง Theme (NEW!)
+1. คลิกที่ **⚙️ Settings**
+2. ในหัวข้อ **🎨 Appearance**:
+   - **Theme Mode**: เลือก ☀️ Light / 🌙 Dark / 🔄 Auto (ตามระบบ)
+   - **Color Theme**: เลือกสีธีมที่ชอบจาก 6 สี
+3. การตั้งค่าจะบันทึกอัตโนมัติ
 
 ### ใช้ Template ไอเดีย
 - เลื่อนลงไปด้านล่าง หัวข้อ **"💡 ไอเดีา Content Series"**
@@ -164,6 +224,69 @@ http-server -p 8080
 - **Claude (Anthropic)**: ~$0.003/1K tokens (~฿0.10/script)
 - **OpenAI GPT-4**: ~$0.03/1K tokens (~฿1/script)
 - **Local Templates**: ฟรี 100%!
+
+## 🤖 วิธีใช้งาน AI Agents (NEW!)
+
+AI Agents คือผู้ช่วยอัจฉริยะที่วิเคราะห์และให้คำแนะนำเฉพาะทางสำหรับเนื้อหาของคุณ
+
+### 📅 Content Scheduler Agent
+**การใช้งาน:**
+1. ไปที่ Dashboard
+2. คลิกที่การ์ด **📅 Content Scheduler** ในส่วน AI Agents
+3. Agent จะวิเคราะห์:
+   - ตารางการโพสต์ทั้งหมด
+   - แนะนำเวลาที่เหมาะสมสำหรับ Draft content
+   - ตรวจจับความขัดแย้ง (หลาย content ในวันเดียวกัน)
+   - หาช่วงว่างในตาราง
+4. คลิก **✓ ใช้เวลานี้** เพื่อกำหนดเวลาตามคำแนะนำ
+
+**ประโยชน์:**
+- กระจาย content ให้สม่ำเสมอ
+- โพสต์ในช่วงเวลาที่ engagement สูง
+- หลีกเลี่ยงการโพสต์ซ้ำซ้อน
+
+### 🚀 SEO/Viral Optimizer Agent
+**การใช้งาน:**
+1. ไปที่ content ที่ต้องการวิเคราะห์
+2. คลิกปุ่ม **🚀** (SEO Optimizer) ที่ด้านล่าง content
+3. Agent จะให้คะแนน 0-100 และวิเคราะห์:
+   - ความยาวและรูปแบบหัวข้อ
+   - โครงสร้างสคริปต์ (Hook, Content, CTA)
+   - จำนวน Hashtags
+   - การกระจายแพลตฟอร์ม
+4. ดูคำแนะนำในการปรับปรุง
+5. คลิก **✏️ แก้ไข Content** เพื่อนำไปปรับปรุง
+
+**คะแนน:**
+- 70-100: ยอดเยี่ยม - พร้อมโพสต์
+- 40-69: พอใช้ - ควรปรับปรุง
+- 0-39: ต้องปรับปรุง - แก้ไขก่อนโพสต์
+
+### 📝 Script Reviewer Agent
+**การใช้งาน:**
+1. ไปที่ content ที่มีสคริปต์
+2. คลิกปุ่ม **📝** (Script Reviewer) ที่ด้านล่าง content
+3. Agent จะตรวจสอบ:
+   - โครงสร้าง (Hook, Content, CTA)
+   - ความยาวสคริปต์เทียบกับเวลาวิดีโอ
+   - ความยาวประโยค
+   - องค์ประกอบที่ดึงดูด (คำถาม, การใช้ "คุณ")
+4. ดูข้อเสนอแนะการปรับปรุง
+5. เลือก:
+   - **✏️ แก้ไขสคริปต์**: แก้เอง
+   - **🤖 ให้ AI ปรับปรุง**: ใช้ AI Assistant ช่วย
+
+**การประเมิน:**
+- 🌟 ยอดเยี่ยม: สคริปต์สมบูรณ์
+- ✅ ดี: เพียงแค่ปรับเล็กน้อย
+- ⚠️ พอใช้: ควรปรับปรุงหลายจุด
+- ❌ ต้องปรับปรุง: ยังไม่พร้อมโพสต์
+
+### 💡 Tips การใช้ AI Agents
+- **ใช้ Scheduler** ก่อนกำหนดตารางโพสต์
+- **ใช้ SEO Optimizer** เมื่อ content พร้อม draft
+- **ใช้ Script Reviewer** หลังเขียนสคริปต์เสร็จ
+- ใช้ร่วมกับ AI Assistant เพื่อผลลัพธ์ที่ดีที่สุด
 
 ## 🎬 Content Series Ideas
 
@@ -326,9 +449,42 @@ CTA: "คุณเชื่อแบบไหน? คอมเมนต์บอ
 ## 🛠️ Technical Details
 
 - **Frontend**: Pure HTML, CSS, JavaScript (ไม่ต้องติดตั้ง framework)
-- **Storage**: LocalStorage (ข้อมูลเก็บในเบราว์เซอร์)
-- **Database**: ไม่ต้องใช้ server หรือ database
+- **Storage Options**:
+  - **Supabase** (PostgreSQL) - Cloud database พร้อม Authentication และ Real-time sync
+  - **LocalStorage** - Browser storage สำหรับโหมดออฟไลน์
+- **Database**: Supabase (PostgreSQL with Row Level Security) หรือไม่ใช้ก็ได้
+- **Authentication**: Supabase Auth (Email/Password, Google OAuth)
 - **Deployment**: เปิดไฟล์ได้เลย หรือ deploy บน GitHub Pages, Netlify, Vercel
+
+### Architecture
+```
+┌─────────────────────────────────────────┐
+│           Story Dashboard UI            │
+│  (HTML + CSS + JavaScript)              │
+└────────┬────────────────────────┬───────┘
+         │                        │
+         ▼                        ▼
+┌────────────────┐      ┌──────────────────┐
+│  LocalStorage  │      │    Supabase      │
+│  (Offline)     │      │  - PostgreSQL    │
+│                │      │  - Auth          │
+│                │      │  - Real-time     │
+└────────────────┘      └──────────────────┘
+```
+
+### Files Structure
+- `index.html` - Main UI
+- `styles.css` - Styling and themes
+- `app.js` - Core content management
+- `supabase.js` - Database operations (NEW!)
+- `auth.js` - Authentication logic (NEW!)
+- `theme.js` - Theme and UI utilities
+- `ai-helper.js` - AI content generation
+- `ai-agents.js` - AI analysis agents
+- `revenue.js` - Monetization tracking
+- `calendar.js` - Calendar view
+- `analytics.js` - Analytics dashboard
+- `SETUP_SUPABASE.md` - Supabase setup guide (NEW!)
 
 ## 📦 Export/Import Data
 

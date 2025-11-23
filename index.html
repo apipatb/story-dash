@@ -4,18 +4,163 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Story Dashboard - จัดการคอนเทนต์</title>
+
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="Dashboard สำหรับจัดการ content ideas และ scripts สำหรับ TikTok, YouTube Shorts และ Facebook">
+    <meta name="theme-color" content="#6366f1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Story Dash">
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+
+    <!-- Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <!-- Initial Loading Screen -->
+    <div id="initialLoading" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-color, #f8f9fa); display: flex; align-items: center; justify-content: center; z-index: 10000;">
+        <div style="text-align: center;">
+            <div class="spinner" style="width: 60px; height: 60px; border: 4px solid #e5e7eb; border-top-color: #6366f1; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px;"></div>
+            <p style="color: var(--text-secondary, #666); font-size: 1.1rem; font-family: system-ui;">กำลังโหลด Story Dashboard...</p>
+        </div>
+    </div>
+
+    <!-- Auth Screen (Login/Signup) -->
+    <div id="authScreen" style="display: none;">
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <h1>📱 Story Dashboard</h1>
+                    <p>จัดการ Content Ideas & Scripts พร้อม AI Assistant</p>
+                </div>
+
+                <!-- Login Form -->
+                <div id="loginForm" class="auth-form">
+                    <h2>เข้าสู่ระบบ</h2>
+
+                    <div class="form-group">
+                        <label>อีเมล</label>
+                        <input type="email" id="loginEmail" placeholder="your@email.com" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>รหัสผ่าน</label>
+                        <input type="password" id="loginPassword" placeholder="••••••••" required>
+                    </div>
+
+                    <button class="btn btn-primary btn-large" onclick="handleLogin()">เข้าสู่ระบบ</button>
+
+                    <div class="auth-divider">หรือ</div>
+
+                    <button class="btn btn-google" onclick="handleGoogleLogin()">
+                        <span>🔐</span> เข้าสู่ระบบด้วย Google
+                    </button>
+
+                    <p class="auth-switch">
+                        ยังไม่มีบัญชี? <a href="#" onclick="showSignupForm(); return false;">สมัครสมาชิก</a>
+                    </p>
+
+                    <p class="auth-switch">
+                        <a href="#" onclick="showSupabaseSetup(); return false;">⚙️ ตั้งค่า Supabase</a>
+                    </p>
+                </div>
+
+                <!-- Signup Form -->
+                <div id="signupForm" class="auth-form" style="display: none;">
+                    <h2>สมัครสมาชิก</h2>
+
+                    <div class="form-group">
+                        <label>ชื่อ</label>
+                        <input type="text" id="signupName" placeholder="ชื่อของคุณ" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>อีเมล</label>
+                        <input type="email" id="signupEmail" placeholder="your@email.com" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>รหัสผ่าน</label>
+                        <input type="password" id="signupPassword" placeholder="••••••••" required>
+                        <small>อย่างน้อย 6 ตัวอักษร</small>
+                    </div>
+
+                    <button class="btn btn-primary btn-large" onclick="handleSignup()">สมัครสมาชิก</button>
+
+                    <p class="auth-switch">
+                        มีบัญชีอยู่แล้ว? <a href="#" onclick="showLoginForm(); return false;">เข้าสู่ระบบ</a>
+                    </p>
+                </div>
+
+                <!-- Supabase Setup Form -->
+                <div id="supabaseSetupForm" class="auth-form" style="display: none;">
+                    <h2>⚙️ ตั้งค่า Supabase</h2>
+                    <p class="setup-instruction">กรอก Supabase URL และ Anon Key ของคุณ</p>
+
+                    <div class="form-group">
+                        <label>Supabase URL</label>
+                        <input type="url" id="supabaseUrl" placeholder="https://xxxxx.supabase.co" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Supabase Anon Key</label>
+                        <textarea id="supabaseKey" rows="3" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." required></textarea>
+                    </div>
+
+                    <button class="btn btn-primary btn-large" onclick="handleSupabaseSetup()">บันทึกและเชื่อมต่อ</button>
+
+                    <p class="auth-switch">
+                        <a href="#" onclick="showLoginForm(); return false;">← กลับไปหน้า Login</a>
+                    </p>
+
+                    <div class="setup-help">
+                        <p><strong>💡 หา Supabase credentials ได้ที่ไหน?</strong></p>
+                        <ol>
+                            <li>ไปที่ <a href="https://supabase.com" target="_blank">supabase.com</a></li>
+                            <li>สร้างโปรเจคใหม่ (ฟรี)</li>
+                            <li>ไปที่ Settings → API</li>
+                            <li>Copy "Project URL" และ "anon public" key</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- Use Without Login -->
+                <div class="use-offline">
+                    <p><a href="#" onclick="useOfflineMode(); return false;">📴 ใช้งานแบบ Offline (LocalStorage)</a></p>
+                    <small>ข้อมูลจะเก็บในเครื่องเท่านั้น ไม่ sync ข้ามอุปกรณ์</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <header>
-            <h1>📱 Story Dashboard</h1>
-            <p class="subtitle">จัดการ Content Ideas & Scripts พร้อม AI Assistant</p>
+            <div class="header-left">
+                <h1>📱 Story Dashboard</h1>
+                <p class="subtitle">จัดการ Content Ideas & Scripts พร้อม AI Assistant</p>
+            </div>
+            <div class="header-right" id="userInfo" style="display: none;">
+                <div class="user-avatar" onclick="openProfileEditor()" title="Edit Profile">U</div>
+                <div class="user-details">
+                    <strong id="userDisplayName">User</strong>
+                    <span class="user-email" id="userEmail"></span>
+                </div>
+                <button class="btn btn-icon" onclick="requestNotificationPermission()" title="Enable Notifications">🔔</button>
+                <button class="btn btn-secondary btn-sm" onclick="handleLogout()">ออกจากระบบ</button>
+            </div>
         </header>
 
         <!-- Navigation Tabs -->
         <nav class="nav-tabs">
             <button class="nav-tab active" onclick="switchView('dashboard')">📊 Dashboard</button>
+            <button class="nav-tab" onclick="switchView('revenue')">💰 รายได้</button>
             <button class="nav-tab" onclick="switchView('calendar')">📅 Calendar</button>
             <button class="nav-tab" onclick="switchView('analytics')">📈 Analytics</button>
             <button class="nav-tab" onclick="switchView('ai')">🤖 AI Assistant</button>
@@ -43,9 +188,36 @@
             </div>
         </div>
 
+        <!-- AI Agents Quick Access -->
+        <div class="ai-agents-section">
+            <h3>🤖 AI Agents - ผู้ช่วยอัจฉริยะ</h3>
+            <div class="agent-cards">
+                <div class="agent-card" onclick="showSchedulerAgent()">
+                    <div class="agent-icon">📅</div>
+                    <h4>Content Scheduler</h4>
+                    <p>วิเคราะห์และแนะนำตารางเผยแพร่</p>
+                </div>
+                <div class="agent-card" onclick="showToast('เลือก content ที่ต้องการวิเคราะห์จากรายการด้านล่าง', 'info')">
+                    <div class="agent-icon">🚀</div>
+                    <h4>SEO/Viral Optimizer</h4>
+                    <p>ตรวจสอบศักยภาพไวรัล</p>
+                </div>
+                <div class="agent-card" onclick="showToast('เลือก content ที่ต้องการตรวจสอบจากรายการด้านล่าง', 'info')">
+                    <div class="agent-icon">📝</div>
+                    <h4>Script Reviewer</h4>
+                    <p>วิเคราะห์คุณภาพสคริปต์</p>
+                </div>
+            </div>
+        </div>
+
         <div class="toolbar">
-            <button class="btn btn-primary" onclick="openAddModal()">+ เพิ่ม Content</button>
+            <div class="toolbar-left">
+                <button class="btn btn-primary add-content-btn" onclick="openAddModal()">+ เพิ่ม Content</button>
+                <button class="btn btn-secondary" onclick="openTemplateLibrary()" title="Template Library">📝 Templates</button>
+                <button class="btn" id="bulkModeBtn" onclick="toggleBulkMode()" title="Bulk Actions">☐ เลือกหลายรายการ</button>
+            </div>
             <div class="filter-group">
+                <input type="text" id="searchInput" placeholder="🔍 ค้นหา content..." oninput="debounceSearch()" class="search-input">
                 <select id="filterStatus" onchange="filterContent()">
                     <option value="all">ทั้งหมด</option>
                     <option value="draft">Draft</option>
@@ -60,6 +232,13 @@
                     <option value="legend">ตำนาน</option>
                     <option value="other">อื่นๆ</option>
                 </select>
+            </div>
+            <div class="toolbar-right">
+                <button class="btn btn-icon" onclick="showTrendAnalyzer()" title="Trend Analyzer">📈</button>
+                <button class="btn btn-icon" onclick="showCompetitorResearch()" title="Competitor Research">🔍</button>
+                <button class="btn btn-icon" onclick="openCPMCalculator()" title="CPM Calculator">💰</button>
+                <button class="btn btn-icon" onclick="showROIReport()" title="ROI Report">📊</button>
+                <button class="btn btn-icon" onclick="showAchievementsModal()" title="Achievements">🏆</button>
             </div>
         </div>
 
@@ -102,13 +281,13 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Script / เนื้อหา</label>
+                        <label>Script / เนื้อหา <span id="scriptTimer" class="script-timer"></span></label>
                         <textarea id="contentScript" rows="8" placeholder="เขียน script หรือโน้ตไอเดียที่นี่...
 
 ตัวอย่าง:
 - Hook: ทำไมคนแก่ห้ามหวีผมตอนเย็น?
 - เนื้อหา: อธิบายความเชื่อ + เหตุผลทางวิทยาศาสตร์
-- CTA: กดไลก์ถ้าเคยได้ยินแบบนี้"></textarea>
+- CTA: กดไลก์ถ้าเคยได้ยินแบบนี้" oninput="updateScriptTimer()"></textarea>
                     </div>
 
                     <div class="form-row">
@@ -135,6 +314,46 @@
                     <div class="form-group">
                         <label>โน้ต / ข้อมูลเพิ่มเติม</label>
                         <textarea id="contentNotes" rows="3" placeholder="บันทึกอะไรเพิ่มเติม เช่น ลิงก์อ้างอิง, hashtags, ฯลฯ"></textarea>
+                    </div>
+
+                    <!-- Monetization Section -->
+                    <div class="form-section-divider">
+                        <h3>💰 การทำเงิน</h3>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>👁️ Views (TikTok)</label>
+                            <input type="number" id="viewsTikTok" min="0" placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <label>👁️ Views (YouTube)</label>
+                            <input type="number" id="viewsYouTube" min="0" placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <label>👁️ Views (Facebook)</label>
+                            <input type="number" id="viewsFacebook" min="0" placeholder="0">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>💵 รายได้จาก Ads (฿)</label>
+                            <input type="number" id="revenueAds" min="0" step="0.01" placeholder="0.00">
+                        </div>
+                        <div class="form-group">
+                            <label>🤝 รายได้จาก Brand Deal (฿)</label>
+                            <input type="number" id="revenueBrand" min="0" step="0.01" placeholder="0.00">
+                        </div>
+                        <div class="form-group">
+                            <label>🔗 รายได้จาก Affiliate (฿)</label>
+                            <input type="number" id="revenueAffiliate" min="0" step="0.01" placeholder="0.00">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>📝 ข้อมูล Brand Deal</label>
+                        <textarea id="brandDealInfo" rows="2" placeholder="ชื่อ Brand, เงื่อนไข, เรท ฯลฯ (ถ้ามี)"></textarea>
                     </div>
 
                     <div class="modal-actions">
@@ -177,6 +396,74 @@
         </div>
         </div>
         <!-- End Dashboard View -->
+
+        <!-- Revenue View -->
+        <div id="revenueView" class="view-container">
+            <h2>💰 รายได้และการทำเงิน</h2>
+
+            <!-- Revenue Stats -->
+            <div class="revenue-stats-grid">
+                <div class="revenue-stat-card total">
+                    <div class="stat-icon">💵</div>
+                    <h3 id="totalRevenue">฿0</h3>
+                    <p>รายได้รวม</p>
+                </div>
+                <div class="revenue-stat-card ads">
+                    <div class="stat-icon">📺</div>
+                    <h3 id="adsRevenue">฿0</h3>
+                    <p>จาก Ads</p>
+                </div>
+                <div class="revenue-stat-card brand">
+                    <div class="stat-icon">🤝</div>
+                    <h3 id="brandRevenue">฿0</h3>
+                    <p>Brand Deals</p>
+                </div>
+                <div class="revenue-stat-card affiliate">
+                    <div class="stat-icon">🔗</div>
+                    <h3 id="affiliateRevenue">฿0</h3>
+                    <p>Affiliate</p>
+                </div>
+            </div>
+
+            <!-- Quick Tools -->
+            <div class="revenue-tools">
+                <button class="btn btn-primary" onclick="openMoneyCalculator()">💰 คำนวณรายได้</button>
+                <button class="btn btn-primary" onclick="openPriceCalculator()">💵 คิดราคา Brand Deal</button>
+                <button class="btn btn-primary" onclick="showMoneyAdvisor()">🤖 AI Money Advisor</button>
+            </div>
+
+            <!-- Top Earners -->
+            <div class="revenue-section">
+                <h3>🏆 Content ที่ทำเงินสูงสุด</h3>
+                <div id="topEarnersList" class="top-earners-list">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Revenue by Platform -->
+            <div class="revenue-section">
+                <h3>📊 รายได้แยกตามแพลตฟอร์ม</h3>
+                <div id="platformRevenue" class="platform-revenue">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Brand Deals -->
+            <div class="revenue-section">
+                <h3>🤝 Brand Deals</h3>
+                <div id="brandDealsList" class="brand-deals-list">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Monthly Revenue Chart -->
+            <div class="revenue-section">
+                <h3>📈 รายได้รายเดือน</h3>
+                <div id="monthlyRevenueChart" class="chart-container">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
 
         <!-- Calendar View -->
         <div id="calendarView" class="view-container">
@@ -340,6 +627,37 @@
             <h2>⚙️ Settings</h2>
 
             <div class="settings-section">
+                <h3>🎨 Appearance</h3>
+
+                <div class="form-group">
+                    <label>Theme Mode</label>
+                    <div class="theme-toggle">
+                        <button class="theme-btn" onclick="setThemeMode('light')" data-theme="light">
+                            ☀️ Light
+                        </button>
+                        <button class="theme-btn active" onclick="setThemeMode('dark')" data-theme="dark">
+                            🌙 Dark
+                        </button>
+                        <button class="theme-btn" onclick="setThemeMode('auto')" data-theme="auto">
+                            🔄 Auto
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Color Theme</label>
+                    <div class="color-theme-selector">
+                        <button class="color-theme active" onclick="setColorTheme('blue')" data-color="blue" style="background: #6366f1"></button>
+                        <button class="color-theme" onclick="setColorTheme('purple')" data-color="purple" style="background: #8b5cf6"></button>
+                        <button class="color-theme" onclick="setColorTheme('green')" data-color="green" style="background: #10b981"></button>
+                        <button class="color-theme" onclick="setColorTheme('orange')" data-color="orange" style="background: #f59e0b"></button>
+                        <button class="color-theme" onclick="setColorTheme('pink')" data-color="pink" style="background: #ec4899"></button>
+                        <button class="color-theme" onclick="setColorTheme('red')" data-color="red" style="background: #ef4444"></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-section">
                 <h3>AI Configuration</h3>
                 <div class="form-group">
                     <label>AI Provider</label>
@@ -382,9 +700,227 @@
         </div>
     </div>
 
+    <!-- Profile Editor Modal -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeProfileEditor()">&times;</span>
+            <h2>แก้ไขโปรไฟล์</h2>
+
+            <div class="profile-editor">
+                <div class="form-group">
+                    <label>ชื่อที่แสดง</label>
+                    <input type="text" id="profileDisplayName" placeholder="ชื่อของคุณ">
+                </div>
+
+                <div class="form-group">
+                    <label>Bio</label>
+                    <textarea id="profileBio" rows="3" placeholder="เกี่ยวกับคุณ"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>เว็บไซต์</label>
+                    <input type="url" id="profileWebsite" placeholder="https://yourwebsite.com">
+                </div>
+
+                <div class="modal-actions">
+                    <button class="btn btn-primary" onclick="saveProfile()">บันทึก</button>
+                    <button class="btn btn-secondary" onclick="closeProfileEditor()">ยกเลิก</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div id="forgotPasswordForm" class="auth-form" style="display: none;">
+        <h2>รีเซ็ตรหัสผ่าน</h2>
+        <div class="form-group">
+            <label>อีเมล</label>
+            <input type="email" id="forgotEmail" placeholder="your@email.com">
+        </div>
+        <button class="btn btn-primary btn-large" onclick="handleForgotPassword()">ส่งลิงก์รีเซ็ตรหัสผ่าน</button>
+        <p class="auth-switch">
+            <a href="#" onclick="hideForgotPasswordForm(); return false;">← กลับไปเข้าสู่ระบบ</a>
+        </p>
+    </div>
+
+    <!-- Preview Modal -->
+    <div id="previewModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closePreview()">&times;</span>
+            <h2>📱 Preview Content</h2>
+
+            <div class="preview-container">
+                <div class="preview-header">
+                    <h3 id="previewTitle"></h3>
+                    <div class="preview-meta">
+                        <span id="previewCategory" class="badge"></span>
+                        <span id="previewStatus" class="badge"></span>
+                    </div>
+                </div>
+
+                <div class="preview-body">
+                    <div class="preview-field">
+                        <strong>Platform:</strong>
+                        <span id="previewPlatforms"></span>
+                    </div>
+
+                    <div class="preview-field">
+                        <strong>Script:</strong>
+                        <pre id="previewScript"></pre>
+                    </div>
+
+                    <div class="preview-field">
+                        <strong>Duration:</strong>
+                        <span id="previewDuration"></span>
+                    </div>
+
+                    <div class="preview-field">
+                        <strong>Schedule:</strong>
+                        <span id="previewSchedule"></span>
+                    </div>
+
+                    <div class="preview-field">
+                        <strong>Notes:</strong>
+                        <span id="previewNotes"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Template Library Modal -->
+    <div id="templateLibraryModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeTemplateLibrary()">&times;</span>
+            <h2>📝 Template Library</h2>
+            <p class="modal-description">เลือก template สำเร็จรูปเพื่อเริ่มต้น</p>
+            <div id="templateLibraryContainer" class="template-grid"></div>
+        </div>
+    </div>
+
+    <!-- CPM Calculator Modal -->
+    <div id="cpmCalculatorModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeCPMCalculator()">&times;</span>
+            <h2>💰 CPM Calculator</h2>
+
+            <div class="cpm-calculator">
+                <div class="form-group">
+                    <label>Platform</label>
+                    <select id="cpmPlatform">
+                        <option value="tiktok">TikTok</option>
+                        <option value="youtube">YouTube</option>
+                        <option value="facebook">Facebook</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Views</label>
+                    <input type="number" id="cpmViews" placeholder="100000">
+                </div>
+
+                <div class="form-group">
+                    <label>Revenue (USD)</label>
+                    <input type="number" id="cpmRevenue" step="0.01" placeholder="50.00">
+                </div>
+
+                <button class="btn btn-primary" onclick="calculateCPM()">คำนวณ CPM</button>
+
+                <div id="cpmResult" class="cpm-result-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ROI Report Modal -->
+    <div id="roiReportModal" class="modal">
+        <div class="modal-content modal-large">
+            <span class="close" onclick="closeROIReport()">&times;</span>
+            <h2>📊 ROI Report</h2>
+            <div id="roiReportContainer"></div>
+        </div>
+    </div>
+
+    <!-- Achievements Modal -->
+    <div id="achievementsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAchievementsModal()">&times;</span>
+            <h2>🏆 Achievements</h2>
+            <p class="modal-description">ปลดล็อค achievements โดยการใช้งาน dashboard</p>
+            <div id="achievementsContainer" class="achievements-grid"></div>
+        </div>
+    </div>
+
+    <!-- Bulk Actions Bar -->
+    <div id="bulkActionsBar" class="bulk-actions-bar" style="display: none;">
+        <span class="bulk-count">เลือกแล้ว: <strong id="bulkSelectedCount">0</strong> รายการ</span>
+        <div class="bulk-actions">
+            <button class="btn btn-sm" onclick="bulkChangeStatus('draft')">→ Draft</button>
+            <button class="btn btn-sm" onclick="bulkChangeStatus('ready')">→ Ready</button>
+            <button class="btn btn-sm" onclick="bulkChangeStatus('posted')">→ Posted</button>
+            <button class="btn btn-sm btn-danger" onclick="bulkDelete()">🗑️ ลบ</button>
+            <button class="btn btn-sm btn-secondary" onclick="deselectAllContents()">ยกเลิก</button>
+        </div>
+    </div>
+
+    <!-- Tutorial Overlay (will be dynamically created) -->
+    <!-- Achievement Notification (will be dynamically created) -->
+
+    <!-- Toast Notifications Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p id="loadingText">กำลังโหลด...</p>
+        </div>
+    </div>
+
+    <!-- Supabase JS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- JavaScript - Load order is important! -->
+    <!-- 1. Theme (provides UI utilities like showToast, showLoading) -->
+    <script src="theme.js"></script>
+
+    <!-- 2. Supabase (database and auth functions) -->
+    <script src="supabase.js"></script>
+
+    <!-- 3. Auth (authentication UI logic) -->
+    <script src="auth.js"></script>
+
+    <!-- 4. Core App (content management) -->
     <script src="app.js"></script>
+
+    <!-- 5. Feature modules -->
     <script src="ai-helper.js"></script>
+    <script src="ai-agents.js"></script>
+    <script src="ai-agents-extended.js"></script>
+    <script src="revenue.js"></script>
     <script src="calendar.js"></script>
     <script src="analytics.js"></script>
+    <script src="enhancements.js"></script>
+
+    <!-- 5.1 Automation System -->
+    <script src="auto-content-generator.js"></script>
+    <script src="ai-video-creator.js"></script>
+    <script src="auto-poster.js"></script>
+    <script src="automation-scheduler.js"></script>
+    <script src="automation-config.js"></script>
+
+    <!-- 6. PWA Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('✅ Service Worker registered:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('❌ Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
 </body>
 </html>

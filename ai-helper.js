@@ -113,7 +113,7 @@ function closeAIModal() {
 async function generateAIContent() {
     const input = document.getElementById('aiInput').value.trim();
     if (!input) {
-        alert('กรุณาใส่ข้อมูล');
+        showToast('กรุณาใส่ข้อมูล', 'warning');
         return;
     }
 
@@ -123,6 +123,9 @@ async function generateAIContent() {
     const btn = document.getElementById('generateBtnText');
     const originalText = btn.textContent;
     btn.textContent = '⏳ กำลังสร้าง...';
+
+    // Show loading overlay
+    showLoading('กำลังสร้างคอนเทนต์...');
 
     try {
         let result;
@@ -135,10 +138,12 @@ async function generateAIContent() {
         // Show output
         document.getElementById('aiOutputText').value = result;
         document.getElementById('aiOutput').style.display = 'block';
+        showToast('สร้างคอนเทนต์สำเร็จ!', 'success');
 
     } catch (error) {
-        alert('เกิดข้อผิดพลาด: ' + error.message);
+        showToast('เกิดข้อผิดพลาด: ' + error.message, 'error');
     } finally {
+        hideLoading();
         btn.textContent = originalText;
     }
 }
@@ -592,7 +597,7 @@ async function callOpenAIAPI(prompt) {
 function copyToClipboard() {
     const text = document.getElementById('aiOutputText').value;
     navigator.clipboard.writeText(text).then(() => {
-        alert('✅ Copy แล้ว!');
+        showToast('Copy แล้ว!', 'success');
     });
 }
 
@@ -611,5 +616,9 @@ function useAIOutput() {
 
 // Initialize AI settings on load
 document.addEventListener('DOMContentLoaded', function() {
-    loadAISettings();
+    try {
+        loadAISettings();
+    } catch (error) {
+        console.error('Error loading AI settings:', error);
+    }
 });
