@@ -10,11 +10,16 @@ const urlsToCache = [
   '/theme.js',
   '/ai-helper.js',
   '/ai-agents.js',
+  '/ai-agents-extended.js',
   '/revenue.js',
   '/calendar.js',
   '/analytics.js',
   '/enhancements.js',
-  '/manifest.json'
+  '/manifest.json',
+  '/icon-192.png',
+  '/icon-512.png',
+  '/apple-touch-icon.png',
+  '/favicon.png'
 ];
 
 // Install event - cache all files
