@@ -1,0 +1,929 @@
+<!--
+  AUTOMATION UI ADD-ON
+  วางโค้ดนี้ใน index.html section ที่เหมาะสม
+-->
+
+<!-- ========================================
+     1. เพิ่ม Tab ใหม่ใน Navigation
+     ======================================== -->
+
+<!-- หา section <div class="tabs"> และเพิ่ม tab นี้: -->
+<button class="tab-btn" onclick="switchTab('automation')" data-tab="automation">
+    🤖 Automation
+</button>
+
+
+<!-- ========================================
+     2. เพิ่ม Tab Content สำหรับ Automation
+     ======================================== -->
+
+<!-- วางหลัง <div id="settingsTab" class="tab-content"> -->
+
+<div id="automationTab" class="tab-content" style="display: none;">
+    <div class="automation-container">
+
+        <!-- Header with Status -->
+        <div class="automation-header">
+            <div class="automation-title">
+                <h1>🤖 Auto Money-Making System</h1>
+                <p>ระบบสร้าง content และโพสต์อัตโนมัติ 100%</p>
+            </div>
+            <div class="automation-status" id="automationStatus">
+                <div class="status-indicator"></div>
+                <span>ตรวจสอบสถานะ...</span>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="automation-stats">
+            <div class="stat-card">
+                <div class="stat-icon">📝</div>
+                <div class="stat-info">
+                    <h3 id="statsGenerated">0</h3>
+                    <p>Contents สร้างแล้ว</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🎬</div>
+                <div class="stat-info">
+                    <h3 id="statsVideos">0</h3>
+                    <p>Videos สร้างแล้ว</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📤</div>
+                <div class="stat-info">
+                    <h3 id="statsPosted">0</h3>
+                    <p>Posts ทั้งหมด</p>
+                </div>
+            </div>
+            <div class="stat-card highlight">
+                <div class="stat-icon">💰</div>
+                <div class="stat-info">
+                    <h3 id="statsRevenue">฿0</h3>
+                    <p>รายได้คาดการณ์</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Setup Progress -->
+        <div class="setup-section" id="setupSection">
+            <h2>⚙️ Setup Progress</h2>
+
+            <div class="setup-steps">
+                <!-- Step 1: API Keys -->
+                <div class="setup-step" id="setupStep1">
+                    <div class="step-header">
+                        <div class="step-number">1</div>
+                        <div class="step-info">
+                            <h3>ตั้งค่า API Keys</h3>
+                            <p>จำเป็นสำหรับการทำงานอัตโนมัติ</p>
+                        </div>
+                        <div class="step-status">⏳</div>
+                    </div>
+                    <div class="step-content">
+                        <div class="api-key-list">
+                            <!-- OpenAI -->
+                            <div class="api-key-item">
+                                <div class="api-info">
+                                    <strong>OpenAI GPT-4</strong>
+                                    <span class="badge required">จำเป็น</span>
+                                    <p>สร้าง content ideas + scripts</p>
+                                </div>
+                                <div class="api-actions">
+                                    <input type="password" id="openaiKey" placeholder="sk-..." class="api-input">
+                                    <button class="btn btn-small" onclick="saveApiKey('openai')">Save</button>
+                                    <a href="https://platform.openai.com/api-keys" target="_blank" class="btn btn-small btn-secondary">Get Key</a>
+                                </div>
+                            </div>
+
+                            <!-- ElevenLabs -->
+                            <div class="api-key-item">
+                                <div class="api-info">
+                                    <strong>ElevenLabs</strong>
+                                    <span class="badge optional">แนะนำ</span>
+                                    <p>เสียงบรรยายคุณภาพสูง ($25/month)</p>
+                                </div>
+                                <div class="api-actions">
+                                    <input type="password" id="elevenlabsKey" placeholder="..." class="api-input">
+                                    <button class="btn btn-small" onclick="saveApiKey('elevenlabs')">Save</button>
+                                    <a href="https://elevenlabs.io" target="_blank" class="btn btn-small btn-secondary">Get Key</a>
+                                </div>
+                            </div>
+
+                            <!-- Pictory -->
+                            <div class="api-key-item">
+                                <div class="api-info">
+                                    <strong>Pictory AI</strong>
+                                    <span class="badge optional">แนะนำ</span>
+                                    <p>สร้าง videos อัตโนมัติ ($39/month)</p>
+                                </div>
+                                <div class="api-actions">
+                                    <input type="password" id="pictoryKey" placeholder="..." class="api-input">
+                                    <button class="btn btn-small" onclick="saveApiKey('pictory')">Save</button>
+                                    <a href="https://pictory.ai" target="_blank" class="btn btn-small btn-secondary">Get Key</a>
+                                </div>
+                            </div>
+
+                            <!-- YouTube -->
+                            <div class="api-key-item">
+                                <div class="api-info">
+                                    <strong>YouTube API</strong>
+                                    <span class="badge optional">ฟรี</span>
+                                    <p>Auto-upload ไป YouTube</p>
+                                </div>
+                                <div class="api-actions">
+                                    <button class="btn btn-small btn-primary" onclick="authorizeYouTube()">Authorize</button>
+                                    <a href="https://console.cloud.google.com" target="_blank" class="btn btn-small btn-secondary">Setup</a>
+                                </div>
+                            </div>
+
+                            <!-- Facebook -->
+                            <div class="api-key-item">
+                                <div class="api-info">
+                                    <strong>Facebook API</strong>
+                                    <span class="badge optional">ฟรี</span>
+                                    <p>Auto-post ไป Facebook</p>
+                                </div>
+                                <div class="api-actions">
+                                    <button class="btn btn-small btn-primary" onclick="authorizeFacebook()">Authorize</button>
+                                    <a href="https://developers.facebook.com" target="_blank" class="btn btn-small btn-secondary">Setup</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="setup-guide-link">
+                            📖 <a href="AUTOMATION_SETUP.md" target="_blank">อ่านคู่มือการตั้งค่าแบบละเอียด</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Configuration -->
+                <div class="setup-step" id="setupStep2">
+                    <div class="step-header">
+                        <div class="step-number">2</div>
+                        <div class="step-info">
+                            <h3>ตั้งค่าระบบ</h3>
+                            <p>กำหนดจำนวน videos และ platforms</p>
+                        </div>
+                        <div class="step-status">⏳</div>
+                    </div>
+                    <div class="step-content">
+                        <div class="config-section">
+                            <div class="config-item">
+                                <label>จำนวน Videos ต่อวัน:</label>
+                                <select id="videosPerDay">
+                                    <option value="1">1 video/วัน</option>
+                                    <option value="3">3 videos/วัน</option>
+                                    <option value="5" selected>5 videos/วัน (แนะนำ)</option>
+                                    <option value="10">10 videos/วัน</option>
+                                </select>
+                                <small>5 videos = 150/เดือน = ~$100 cost</small>
+                            </div>
+
+                            <div class="config-item">
+                                <label>Platforms:</label>
+                                <div class="checkbox-group">
+                                    <label><input type="checkbox" id="platformYoutube" checked> YouTube</label>
+                                    <label><input type="checkbox" id="platformFacebook" checked> Facebook</label>
+                                    <label><input type="checkbox" id="platformTiktok" checked> TikTok (Manual)</label>
+                                </div>
+                            </div>
+
+                            <div class="config-item">
+                                <label>Auto Features:</label>
+                                <div class="checkbox-group">
+                                    <label><input type="checkbox" id="autoGenerate" checked> Auto Generate Content</label>
+                                    <label><input type="checkbox" id="autoCreateVideo" checked> Auto Create Videos</label>
+                                    <label><input type="checkbox" id="autoPost" checked> Auto Post (YouTube + Facebook)</label>
+                                </div>
+                            </div>
+
+                            <div class="config-item">
+                                <label>เวลาโพสต์:</label>
+                                <div class="time-slots">
+                                    <label><input type="checkbox" checked> 18:00 (Prime time)</label>
+                                    <label><input type="checkbox"> 20:00 (Peak time)</label>
+                                    <label><input type="checkbox"> 21:00 (Evening)</label>
+                                </div>
+                            </div>
+
+                            <button class="btn btn-primary" onclick="saveAutomationConfig()">💾 บันทึกการตั้งค่า</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Start Automation -->
+                <div class="setup-step" id="setupStep3">
+                    <div class="step-header">
+                        <div class="step-number">3</div>
+                        <div class="step-info">
+                            <h3>เริ่มระบบอัตโนมัติ</h3>
+                            <p>ระบบจะทำงานตามกำหนดเวลา</p>
+                        </div>
+                        <div class="step-status">⏳</div>
+                    </div>
+                    <div class="step-content">
+                        <div class="start-automation">
+                            <div class="cost-estimate">
+                                <h4>💰 ค่าใช้จ่ายและผลตอบแทนคาดการณ์</h4>
+                                <table class="estimate-table">
+                                    <tr>
+                                        <td>Videos/เดือน:</td>
+                                        <td><strong id="estimateVideos">150</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>ค่าใช้จ่าย:</td>
+                                        <td><strong id="estimateCost">$94/month (~3,500฿)</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Views คาดการณ์:</td>
+                                        <td><strong id="estimateViews">7.5M/month</strong></td>
+                                    </tr>
+                                    <tr class="highlight">
+                                        <td>รายได้คาดการณ์:</td>
+                                        <td><strong id="estimateRevenue">100,000-150,000฿/month</strong></td>
+                                    </tr>
+                                    <tr class="highlight">
+                                        <td>ROI:</td>
+                                        <td><strong id="estimateROI">30-60 เท่า</strong></td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <div class="automation-controls">
+                                <button class="btn btn-large btn-success" id="startAutomationBtn" onclick="startAutomation()">
+                                    🚀 เริ่มระบบอัตโนมัติ
+                                </button>
+                                <button class="btn btn-large btn-warning" id="stopAutomationBtn" onclick="stopAutomation()" style="display: none;">
+                                    ⏸️ หยุดระบบชั่วคราว
+                                </button>
+                                <button class="btn btn-large btn-secondary" onclick="testAutomation()">
+                                    🧪 ทดสอบ (สร้าง 1 video)
+                                </button>
+                            </div>
+
+                            <div class="automation-schedule">
+                                <h4>📅 กำหนดการทำงานอัตโนมัติ</h4>
+                                <ul>
+                                    <li><strong>06:00</strong> - สร้าง content ideas + scripts</li>
+                                    <li><strong>08:00-12:00</strong> - สร้าง videos</li>
+                                    <li><strong>18:00</strong> - โพสต์ไป YouTube + Facebook</li>
+                                    <li><strong>คุณ:</strong> Download videos และอัพโหลด TikTok (15 นาที/วัน)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Log -->
+        <div class="activity-section">
+            <h2>📊 Activity Log</h2>
+            <div class="activity-filters">
+                <button class="filter-btn active" onclick="filterActivity('all')">ทั้งหมด</button>
+                <button class="filter-btn" onclick="filterActivity('generated')">Generated</button>
+                <button class="filter-btn" onclick="filterActivity('created')">Created</button>
+                <button class="filter-btn" onclick="filterActivity('posted')">Posted</button>
+            </div>
+            <div class="activity-log" id="activityLog">
+                <div class="activity-item">
+                    <div class="activity-icon">✅</div>
+                    <div class="activity-content">
+                        <strong>ระบบพร้อมใช้งาน</strong>
+                        <p>ตั้งค่า API keys แล้วกด "เริ่มระบบอัตโนมัติ"</p>
+                        <span class="activity-time">ตอนนี้</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<!-- ========================================
+     3. JavaScript Functions
+     ======================================== -->
+
+<script>
+// Automation Tab Functions
+
+// สลับไปยัง Automation tab
+function switchToAutomationTab() {
+    switchTab('automation');
+}
+
+// บันทึก API Key
+async function saveApiKey(service) {
+    const keyInputs = {
+        'openai': document.getElementById('openaiKey'),
+        'elevenlabs': document.getElementById('elevenlabsKey'),
+        'pictory': document.getElementById('pictoryKey')
+    };
+
+    const input = keyInputs[service];
+    const key = input.value.trim();
+
+    if (!key) {
+        showToast('กรุณากรอก API key', 'warning');
+        return;
+    }
+
+    // บันทึก
+    automationConfig.setApiKey(service, key);
+
+    showToast(`✅ บันทึก ${service} API key สำเร็จ`, 'success');
+
+    // Clear input for security
+    input.value = '';
+
+    // Refresh status
+    updateAutomationStatus();
+}
+
+// Authorize YouTube
+function authorizeYouTube() {
+    if (typeof autoPoster !== 'undefined') {
+        autoPoster.authorizeYouTube();
+    } else {
+        showToast('กรุณารีเฟรชหน้า', 'warning');
+    }
+}
+
+// Authorize Facebook
+function authorizeFacebook() {
+    if (typeof autoPoster !== 'undefined') {
+        autoPoster.authorizeFacebook();
+    } else {
+        showToast('กรุณารีเฟรชหน้า', 'warning');
+    }
+}
+
+// บันทึกการตั้งค่า Automation
+function saveAutomationConfig() {
+    const config = {
+        videosPerDay: parseInt(document.getElementById('videosPerDay').value),
+        platforms: [],
+        autoGenerate: document.getElementById('autoGenerate').checked,
+        autoCreateVideo: document.getElementById('autoCreateVideo').checked,
+        autoPost: document.getElementById('autoPost').checked
+    };
+
+    // Platforms
+    if (document.getElementById('platformYoutube').checked) config.platforms.push('youtube');
+    if (document.getElementById('platformFacebook').checked) config.platforms.push('facebook');
+    if (document.getElementById('platformTiktok').checked) config.platforms.push('tiktok');
+
+    // บันทึก
+    automationConfig.updateSettings({ automation: config });
+
+    showToast('✅ บันทึกการตั้งค่าสำเร็จ', 'success');
+
+    // Update cost estimate
+    updateCostEstimate(config.videosPerDay);
+
+    // Refresh status
+    updateAutomationStatus();
+}
+
+// เริ่มระบบ Auto
+async function startAutomation() {
+    // ตรวจสอบ API keys
+    const status = automationConfig.validateKeys();
+
+    if (!status.ready) {
+        showToast('❌ กรุณาตั้งค่า OpenAI API Key ก่อน', 'error');
+        return;
+    }
+
+    if (!confirm('🚀 เริ่มระบบอัตโนมัติ?\n\nระบบจะสร้าง content + videos และโพสต์อัตโนมัติทุกวัน')) {
+        return;
+    }
+
+    // Start
+    automationScheduler.start();
+
+    // UI Update
+    document.getElementById('startAutomationBtn').style.display = 'none';
+    document.getElementById('stopAutomationBtn').style.display = 'inline-block';
+
+    showToast('🚀 เริ่มระบบอัตโนมัติแล้ว!', 'success');
+
+    // Add activity
+    addActivity('started', 'เริ่มระบบอัตโนมัติ', 'ระบบจะทำงานทุกวัน 06:00, 08:00, 18:00');
+
+    updateAutomationStatus();
+}
+
+// หยุดระบบ
+function stopAutomation() {
+    if (!confirm('⏸️ หยุดระบบอัตโนมัติ?')) {
+        return;
+    }
+
+    automationScheduler.stop();
+
+    // UI Update
+    document.getElementById('startAutomationBtn').style.display = 'inline-block';
+    document.getElementById('stopAutomationBtn').style.display = 'none';
+
+    showToast('⏸️ หยุดระบบแล้ว', 'info');
+
+    addActivity('stopped', 'หยุดระบบอัตโนมัติ', 'ระบบหยุดทำงานชั่วคราว');
+
+    updateAutomationStatus();
+}
+
+// ทดสอบระบบ
+async function testAutomation() {
+    if (!confirm('🧪 ทดสอบระบบ?\n\nจะสร้าง 1 content + video ทดลอง (ใช้เวลา 2-5 นาที)')) {
+        return;
+    }
+
+    showToast('🧪 กำลังทดสอบ...', 'info');
+
+    addActivity('testing', 'เริ่มทดสอบระบบ', 'สร้าง 1 content + video');
+
+    try {
+        await automationScheduler.testRun();
+
+        showToast('✅ ทดสอบสำเร็จ!', 'success');
+        addActivity('tested', 'ทดสอบสำเร็จ', 'ระบบทำงานปกติ');
+
+    } catch (error) {
+        showToast('❌ ทดสอบล้มเหลว: ' + error.message, 'error');
+        addActivity('error', 'ทดสอบล้มเหลว', error.message);
+    }
+}
+
+// อัพเดทสถานะ
+function updateAutomationStatus() {
+    const status = automationScheduler.getStatus();
+    const statusEl = document.getElementById('automationStatus');
+
+    if (status.isRunning) {
+        statusEl.innerHTML = `
+            <div class="status-indicator running"></div>
+            <span>กำลังทำงาน</span>
+        `;
+    } else {
+        statusEl.innerHTML = `
+            <div class="status-indicator stopped"></div>
+            <span>หยุดทำงาน</span>
+        `;
+    }
+
+    // Update stats
+    document.getElementById('statsGenerated').textContent = status.stats.totalGenerated;
+    document.getElementById('statsVideos').textContent = status.stats.totalCreated;
+    document.getElementById('statsPosted').textContent = status.stats.totalPosted;
+
+    // Update setup steps
+    updateSetupSteps();
+}
+
+// อัพเดท setup steps
+function updateSetupSteps() {
+    const setupStatus = automationConfig.getSetupStatus();
+
+    // Step 1: API Keys
+    const step1 = document.getElementById('setupStep1');
+    if (setupStatus.step1_keys.required.openai) {
+        step1.querySelector('.step-status').innerHTML = '✅';
+        step1.classList.add('completed');
+    }
+
+    // Step 2: Settings
+    const step2 = document.getElementById('setupStep2');
+    if (setupStatus.step2_settings.automation) {
+        step2.querySelector('.step-status').innerHTML = '✅';
+        step2.classList.add('completed');
+    }
+
+    // Step 3: Ready
+    const step3 = document.getElementById('setupStep3');
+    if (setupStatus.step3_ready) {
+        step3.querySelector('.step-status').innerHTML = '✅';
+        step3.classList.add('completed');
+    }
+}
+
+// อัพเดทประมาณการค่าใช้จ่าย
+function updateCostEstimate(videosPerDay) {
+    const estimate = automationConfig.estimateCosts(videosPerDay);
+
+    document.getElementById('estimateVideos').textContent = estimate.videosPerMonth;
+    document.getElementById('estimateCost').textContent = `$${estimate.total.monthly.toFixed(0)}/month (~${(estimate.total.monthly * 35).toFixed(0)}฿)`;
+    document.getElementById('estimateViews').textContent = (estimate.videosPerMonth * 50000 / 1000000).toFixed(1) + 'M/month';
+    document.getElementById('estimateRevenue').textContent = `${(estimate.revenue.conservative / 1000).toFixed(0)}k-${(estimate.revenue.optimistic / 1000).toFixed(0)}k฿/month`;
+    document.getElementById('estimateROI').textContent = `${estimate.roi.conservative}-${estimate.roi.optimistic} เท่า`;
+}
+
+// เพิ่ม activity log
+function addActivity(type, title, description) {
+    const log = document.getElementById('activityLog');
+
+    const icons = {
+        'generated': '📝',
+        'created': '🎬',
+        'posted': '📤',
+        'started': '🚀',
+        'stopped': '⏸️',
+        'tested': '🧪',
+        'testing': '⏳',
+        'error': '❌'
+    };
+
+    const item = document.createElement('div');
+    item.className = 'activity-item';
+    item.innerHTML = `
+        <div class="activity-icon">${icons[type] || '📌'}</div>
+        <div class="activity-content">
+            <strong>${title}</strong>
+            <p>${description}</p>
+            <span class="activity-time">${new Date().toLocaleString('th-TH')}</span>
+        </div>
+    `;
+
+    log.insertBefore(item, log.firstChild);
+
+    // Keep max 50 items
+    while (log.children.length > 50) {
+        log.removeChild(log.lastChild);
+    }
+}
+
+// Filter activity
+function filterActivity(type) {
+    // Update active button
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+
+    // Filter items (implement if needed)
+}
+
+// Initialize when tab is opened
+document.addEventListener('DOMContentLoaded', () => {
+    // Load initial status
+    if (typeof automationScheduler !== 'undefined') {
+        updateAutomationStatus();
+        updateCostEstimate(5);
+    }
+});
+</script>
+
+
+<!-- ========================================
+     4. Add CSS (วางใน styles.css)
+     ======================================== -->
+
+<!--
+CSS สำหรับ Automation UI (วางใน styles.css):
+
+.automation-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.automation-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    border-radius: 12px;
+    color: white;
+}
+
+.automation-title h1 {
+    margin: 0;
+    font-size: 2rem;
+}
+
+.automation-title p {
+    margin: 5px 0 0 0;
+    opacity: 0.9;
+}
+
+.automation-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255,255,255,0.2);
+    padding: 10px 20px;
+    border-radius: 20px;
+}
+
+.status-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #ccc;
+}
+
+.status-indicator.running {
+    background: #10b981;
+    animation: pulse 2s infinite;
+}
+
+.status-indicator.stopped {
+    background: #ef4444;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.automation-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.stat-card.highlight {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+}
+
+.setup-section {
+    margin: 30px 0;
+}
+
+.setup-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.setup-step {
+    background: var(--card-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.setup-step.completed {
+    border-color: var(--success-color);
+}
+
+.step-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 20px;
+    background: var(--bg-secondary);
+    cursor: pointer;
+}
+
+.step-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.step-info {
+    flex: 1;
+}
+
+.step-info h3 {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.step-info p {
+    margin: 5px 0 0 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.step-status {
+    font-size: 1.5rem;
+}
+
+.step-content {
+    padding: 20px;
+}
+
+.api-key-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.api-key-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+}
+
+.api-info {
+    flex: 1;
+}
+
+.api-info strong {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.api-info p {
+    margin: 5px 0 0 0;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.api-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.api-input {
+    width: 300px;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-family: monospace;
+}
+
+.badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    margin-left: 8px;
+}
+
+.badge.required {
+    background: #ef4444;
+    color: white;
+}
+
+.badge.optional {
+    background: #3b82f6;
+    color: white;
+}
+
+.config-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.config-item label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.config-item select {
+    width: 100%;
+    max-width: 400px;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+}
+
+.checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: normal;
+}
+
+.cost-estimate {
+    background: var(--bg-secondary);
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.estimate-table {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.estimate-table td {
+    padding: 8px;
+}
+
+.estimate-table tr.highlight {
+    background: rgba(16, 185, 129, 0.1);
+    font-weight: bold;
+}
+
+.automation-controls {
+    display: flex;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.automation-schedule {
+    background: var(--bg-secondary);
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.automation-schedule ul {
+    list-style: none;
+    padding: 0;
+}
+
+.automation-schedule li {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.activity-section {
+    margin: 30px 0;
+}
+
+.activity-filters {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.filter-btn {
+    padding: 8px 16px;
+    border: 1px solid var(--border-color);
+    background: transparent;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.filter-btn.active {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.activity-log {
+    background: var(--card-bg);
+    border-radius: 8px;
+    padding: 15px;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.activity-item {
+    display: flex;
+    gap: 15px;
+    padding: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-icon {
+    font-size: 1.5rem;
+}
+
+.activity-content {
+    flex: 1;
+}
+
+.activity-content strong {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.activity-content p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.activity-time {
+    display: block;
+    margin-top: 5px;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+-->
