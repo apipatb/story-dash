@@ -4,6 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Story Dashboard - จัดการคอนเทนต์</title>
+
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="Dashboard สำหรับจัดการ content ideas และ scripts สำหรับ TikTok, YouTube Shorts และ Facebook">
+    <meta name="theme-color" content="#6366f1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Story Dash">
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+
+    <!-- Icons -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png">
+    <link rel="apple-touch-icon" href="/icon-192.png">
+
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -130,10 +146,13 @@
                 <p class="subtitle">จัดการ Content Ideas & Scripts พร้อม AI Assistant</p>
             </div>
             <div class="header-right" id="userInfo" style="display: none;">
-                <div class="user-menu">
+                <div class="user-avatar" onclick="openProfileEditor()" title="Edit Profile">U</div>
+                <div class="user-details">
+                    <strong id="userDisplayName">User</strong>
                     <span class="user-email" id="userEmail"></span>
-                    <button class="btn btn-secondary btn-sm" onclick="handleLogout()">ออกจากระบบ</button>
                 </div>
+                <button class="btn btn-icon" onclick="requestNotificationPermission()" title="Enable Notifications">🔔</button>
+                <button class="btn btn-secondary btn-sm" onclick="handleLogout()">ออกจากระบบ</button>
             </div>
         </header>
 
@@ -191,7 +210,11 @@
         </div>
 
         <div class="toolbar">
-            <button class="btn btn-primary" onclick="openAddModal()">+ เพิ่ม Content</button>
+            <div class="toolbar-left">
+                <button class="btn btn-primary add-content-btn" onclick="openAddModal()">+ เพิ่ม Content</button>
+                <button class="btn btn-secondary" onclick="openTemplateLibrary()" title="Template Library">📝 Templates</button>
+                <button class="btn" id="bulkModeBtn" onclick="toggleBulkMode()" title="Bulk Actions">☐ เลือกหลายรายการ</button>
+            </div>
             <div class="filter-group">
                 <input type="text" id="searchInput" placeholder="🔍 ค้นหา content..." oninput="debounceSearch()" class="search-input">
                 <select id="filterStatus" onchange="filterContent()">
@@ -208,6 +231,13 @@
                     <option value="legend">ตำนาน</option>
                     <option value="other">อื่นๆ</option>
                 </select>
+            </div>
+            <div class="toolbar-right">
+                <button class="btn btn-icon" onclick="showTrendAnalyzer()" title="Trend Analyzer">📈</button>
+                <button class="btn btn-icon" onclick="showCompetitorResearch()" title="Competitor Research">🔍</button>
+                <button class="btn btn-icon" onclick="openCPMCalculator()" title="CPM Calculator">💰</button>
+                <button class="btn btn-icon" onclick="showROIReport()" title="ROI Report">📊</button>
+                <button class="btn btn-icon" onclick="showAchievementsModal()" title="Achievements">🏆</button>
             </div>
         </div>
 
@@ -250,13 +280,13 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Script / เนื้อหา</label>
+                        <label>Script / เนื้อหา <span id="scriptTimer" class="script-timer"></span></label>
                         <textarea id="contentScript" rows="8" placeholder="เขียน script หรือโน้ตไอเดียที่นี่...
 
 ตัวอย่าง:
 - Hook: ทำไมคนแก่ห้ามหวีผมตอนเย็น?
 - เนื้อหา: อธิบายความเชื่อ + เหตุผลทางวิทยาศาสตร์
-- CTA: กดไลก์ถ้าเคยได้ยินแบบนี้"></textarea>
+- CTA: กดไลก์ถ้าเคยได้ยินแบบนี้" oninput="updateScriptTimer()"></textarea>
                     </div>
 
                     <div class="form-row">
@@ -669,6 +699,171 @@
         </div>
     </div>
 
+    <!-- Profile Editor Modal -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeProfileEditor()">&times;</span>
+            <h2>แก้ไขโปรไฟล์</h2>
+
+            <div class="profile-editor">
+                <div class="form-group">
+                    <label>ชื่อที่แสดง</label>
+                    <input type="text" id="profileDisplayName" placeholder="ชื่อของคุณ">
+                </div>
+
+                <div class="form-group">
+                    <label>Bio</label>
+                    <textarea id="profileBio" rows="3" placeholder="เกี่ยวกับคุณ"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>เว็บไซต์</label>
+                    <input type="url" id="profileWebsite" placeholder="https://yourwebsite.com">
+                </div>
+
+                <div class="modal-actions">
+                    <button class="btn btn-primary" onclick="saveProfile()">บันทึก</button>
+                    <button class="btn btn-secondary" onclick="closeProfileEditor()">ยกเลิก</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div id="forgotPasswordForm" class="auth-form" style="display: none;">
+        <h2>รีเซ็ตรหัสผ่าน</h2>
+        <div class="form-group">
+            <label>อีเมล</label>
+            <input type="email" id="forgotEmail" placeholder="your@email.com">
+        </div>
+        <button class="btn btn-primary btn-large" onclick="handleForgotPassword()">ส่งลิงก์รีเซ็ตรหัสผ่าน</button>
+        <p class="auth-switch">
+            <a href="#" onclick="hideForgotPasswordForm(); return false;">← กลับไปเข้าสู่ระบบ</a>
+        </p>
+    </div>
+
+    <!-- Preview Modal -->
+    <div id="previewModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closePreview()">&times;</span>
+            <h2>📱 Preview Content</h2>
+
+            <div class="preview-container">
+                <div class="preview-header">
+                    <h3 id="previewTitle"></h3>
+                    <div class="preview-meta">
+                        <span id="previewCategory" class="badge"></span>
+                        <span id="previewStatus" class="badge"></span>
+                    </div>
+                </div>
+
+                <div class="preview-body">
+                    <div class="preview-field">
+                        <strong>Platform:</strong>
+                        <span id="previewPlatforms"></span>
+                    </div>
+
+                    <div class="preview-field">
+                        <strong>Script:</strong>
+                        <pre id="previewScript"></pre>
+                    </div>
+
+                    <div class="preview-field">
+                        <strong>Duration:</strong>
+                        <span id="previewDuration"></span>
+                    </div>
+
+                    <div class="preview-field">
+                        <strong>Schedule:</strong>
+                        <span id="previewSchedule"></span>
+                    </div>
+
+                    <div class="preview-field">
+                        <strong>Notes:</strong>
+                        <span id="previewNotes"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Template Library Modal -->
+    <div id="templateLibraryModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeTemplateLibrary()">&times;</span>
+            <h2>📝 Template Library</h2>
+            <p class="modal-description">เลือก template สำเร็จรูปเพื่อเริ่มต้น</p>
+            <div id="templateLibraryContainer" class="template-grid"></div>
+        </div>
+    </div>
+
+    <!-- CPM Calculator Modal -->
+    <div id="cpmCalculatorModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeCPMCalculator()">&times;</span>
+            <h2>💰 CPM Calculator</h2>
+
+            <div class="cpm-calculator">
+                <div class="form-group">
+                    <label>Platform</label>
+                    <select id="cpmPlatform">
+                        <option value="tiktok">TikTok</option>
+                        <option value="youtube">YouTube</option>
+                        <option value="facebook">Facebook</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Views</label>
+                    <input type="number" id="cpmViews" placeholder="100000">
+                </div>
+
+                <div class="form-group">
+                    <label>Revenue (USD)</label>
+                    <input type="number" id="cpmRevenue" step="0.01" placeholder="50.00">
+                </div>
+
+                <button class="btn btn-primary" onclick="calculateCPM()">คำนวณ CPM</button>
+
+                <div id="cpmResult" class="cpm-result-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ROI Report Modal -->
+    <div id="roiReportModal" class="modal">
+        <div class="modal-content modal-large">
+            <span class="close" onclick="closeROIReport()">&times;</span>
+            <h2>📊 ROI Report</h2>
+            <div id="roiReportContainer"></div>
+        </div>
+    </div>
+
+    <!-- Achievements Modal -->
+    <div id="achievementsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAchievementsModal()">&times;</span>
+            <h2>🏆 Achievements</h2>
+            <p class="modal-description">ปลดล็อค achievements โดยการใช้งาน dashboard</p>
+            <div id="achievementsContainer" class="achievements-grid"></div>
+        </div>
+    </div>
+
+    <!-- Bulk Actions Bar -->
+    <div id="bulkActionsBar" class="bulk-actions-bar" style="display: none;">
+        <span class="bulk-count">เลือกแล้ว: <strong id="bulkSelectedCount">0</strong> รายการ</span>
+        <div class="bulk-actions">
+            <button class="btn btn-sm" onclick="bulkChangeStatus('draft')">→ Draft</button>
+            <button class="btn btn-sm" onclick="bulkChangeStatus('ready')">→ Ready</button>
+            <button class="btn btn-sm" onclick="bulkChangeStatus('posted')">→ Posted</button>
+            <button class="btn btn-sm btn-danger" onclick="bulkDelete()">🗑️ ลบ</button>
+            <button class="btn btn-sm btn-secondary" onclick="deselectAllContents()">ยกเลิก</button>
+        </div>
+    </div>
+
+    <!-- Tutorial Overlay (will be dynamically created) -->
+    <!-- Achievement Notification (will be dynamically created) -->
+
     <!-- Toast Notifications Container -->
     <div id="toastContainer" class="toast-container"></div>
 
@@ -699,8 +894,25 @@
     <!-- 5. Feature modules -->
     <script src="ai-helper.js"></script>
     <script src="ai-agents.js"></script>
+    <script src="ai-agents-extended.js"></script>
     <script src="revenue.js"></script>
     <script src="calendar.js"></script>
     <script src="analytics.js"></script>
+    <script src="enhancements.js"></script>
+
+    <!-- 6. PWA Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('✅ Service Worker registered:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('❌ Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
 </body>
 </html>
