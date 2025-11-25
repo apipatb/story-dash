@@ -210,6 +210,108 @@
             </div>
         </div>
 
+        <!-- Auto-Posting Control Panel -->
+        <div class="auto-post-panel">
+            <div class="auto-post-header">
+                <div class="auto-post-title">
+                    <h3>🚀 Auto-Posting System</h3>
+                    <p>ระบบสร้างและโพสต์คอนเทนต์อัตโนมัติ</p>
+                </div>
+                <div class="auto-post-toggle-container">
+                    <button id="auto-post-toggle" class="btn btn-large" onclick="toggleAutoPost()">
+                        <span id="auto-post-toggle-text">▶️ Start Auto-Post</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="auto-post-body">
+                <div class="auto-post-status-grid">
+                    <!-- Status Card -->
+                    <div class="auto-post-card status-card">
+                        <div class="card-icon">🔄</div>
+                        <div class="card-content">
+                            <h4>สถานะ</h4>
+                            <div id="auto-post-status" class="status-badge stopped">⚪ Stopped</div>
+                            <p class="status-detail" id="auto-post-status-detail">ระบบยังไม่เริ่มทำงาน</p>
+                        </div>
+                    </div>
+
+                    <!-- Next Run Card -->
+                    <div class="auto-post-card">
+                        <div class="card-icon">⏰</div>
+                        <div class="card-content">
+                            <h4>รอบถัดไป</h4>
+                            <div id="auto-post-next-run" class="value">-</div>
+                            <p class="label">เวลาสร้างคอนเทนต์รอบถัดไป</p>
+                        </div>
+                    </div>
+
+                    <!-- Stats Card -->
+                    <div class="auto-post-card">
+                        <div class="card-icon">📊</div>
+                        <div class="card-content">
+                            <h4>สถิติวันนี้</h4>
+                            <div id="auto-post-today-stats" class="stats-mini">
+                                <span>Generated: <strong id="today-generated">0</strong></span>
+                                <span>Posted: <strong id="today-posted">0</strong></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Total Stats Card -->
+                    <div class="auto-post-card">
+                        <div class="card-icon">🎯</div>
+                        <div class="card-content">
+                            <h4>สถิติรวม</h4>
+                            <div id="auto-post-total-stats" class="stats-mini">
+                                <span>Total: <strong id="total-generated">0</strong></span>
+                                <span>Posted: <strong id="total-posted">0</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Config -->
+                <div class="auto-post-config">
+                    <div class="config-row">
+                        <label>
+                            <span>📹 Videos/วัน:</span>
+                            <input type="number" id="videos-per-day" min="1" max="10" value="3" onchange="updateAutoPostConfig()">
+                        </label>
+                        <label>
+                            <span>⏰ เวลาสร้าง:</span>
+                            <input type="time" id="daily-run-time" value="06:00" onchange="updateAutoPostConfig()">
+                        </label>
+                        <label>
+                            <span>📱 Platforms:</span>
+                            <select id="auto-platforms" multiple size="3" onchange="updateAutoPostConfig()">
+                                <option value="youtube" selected>YouTube</option>
+                                <option value="facebook" selected>Facebook</option>
+                                <option value="tiktok" selected>TikTok</option>
+                            </select>
+                        </label>
+                    </div>
+                    <div class="config-actions">
+                        <button class="btn btn-secondary btn-sm" onclick="openAutoPostSettings()">⚙️ ตั้งค่าเพิ่มเติม</button>
+                        <button class="btn btn-sm" onclick="runAutoPostNow()">▶️ Run Now</button>
+                        <button class="btn btn-sm" onclick="viewAutoPostLogs()">📋 Logs</button>
+                    </div>
+                </div>
+
+                <!-- Setup Guide (shown when not configured) -->
+                <div id="auto-post-setup-guide" class="setup-guide" style="display: none;">
+                    <h4>🛠️ Setup Required</h4>
+                    <p>กรุณาตั้งค่าก่อนเริ่มใช้งาน Auto-Posting:</p>
+                    <ol id="setup-checklist">
+                        <li class="incomplete">✗ OpenAI API Key (จำเป็น)</li>
+                        <li class="incomplete">✗ กำหนดจำนวน videos/วัน</li>
+                        <li class="incomplete">✗ เลือก platforms</li>
+                    </ol>
+                    <button class="btn btn-primary" onclick="openAutoPostSettings()">⚙️ เริ่มต้นตั้งค่า</button>
+                </div>
+            </div>
+        </div>
+
         <div class="toolbar">
             <div class="toolbar-left">
                 <button class="btn btn-primary add-content-btn" onclick="openAddModal()">+ เพิ่ม Content</button>
@@ -907,6 +1009,8 @@
     <script src="auto-poster.js"></script>
     <script src="automation-scheduler.js"></script>
     <script src="automation-config.js"></script>
+    <script src="auto-post-manager.js"></script>
+    <script src="auto-post-ui.js"></script>
 
     <!-- 6. PWA Service Worker Registration -->
     <script>
