@@ -3566,3 +3566,127 @@ body.dark-mode .toast {
         display: none !important;
     }
 }
+
+/* ===========================================
+   AUTO-POST CONTROL
+   =========================================== */
+
+.auto-post-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-right: 15px;
+}
+
+#autoPostToggle {
+    font-weight: 600;
+    padding: 8px 16px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+#autoPostToggle:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+#autoPostToggle:active {
+    transform: translateY(0);
+}
+
+.status-badge {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.status-badge.status-running {
+    background: #d1fae5;
+    color: #065f46;
+    animation: pulse-running 2s ease-in-out infinite;
+}
+
+.status-badge.status-stopped {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+[data-theme="dark"] .status-badge.status-running {
+    background: #064e3b;
+    color: #6ee7b7;
+}
+
+[data-theme="dark"] .status-badge.status-stopped {
+    background: #374151;
+    color: #9ca3af;
+}
+
+@keyframes pulse-running {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+/* Setup Modal */
+.setup-list {
+    margin: 20px 0;
+}
+
+.setup-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 15px;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border-left: 4px solid #f59e0b;
+}
+
+.setup-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.setup-details h4 {
+    margin: 0 0 5px 0;
+    color: var(--text-primary);
+    font-size: 1rem;
+}
+
+.setup-details p {
+    margin: 0 0 5px 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.setup-details small {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .auto-post-control {
+        margin-right: 10px;
+    }
+
+    #autoPostToggle {
+        padding: 6px 12px;
+        font-size: 0.9rem;
+    }
+
+    #autoPostText {
+        display: none;
+    }
+
+    .status-badge {
+        display: none !important;
+    }
+}
+

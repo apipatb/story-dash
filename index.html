@@ -147,6 +147,15 @@
                 <p class="subtitle">จัดการ Content Ideas & Scripts พร้อม AI Assistant</p>
             </div>
             <div class="header-right" id="userInfo" style="display: none;">
+                <!-- Auto-Post Control -->
+                <div class="auto-post-control">
+                    <button id="autoPostToggle" class="btn btn-primary" onclick="toggleAutoPost()" style="margin-right: 10px;">
+                        <span id="autoPostIcon">▶️</span>
+                        <span id="autoPostText">Start Auto-Post</span>
+                    </button>
+                    <span id="autoPostStatus" class="status-badge" style="display: none;">⚪ Stopped</span>
+                </div>
+
                 <div class="user-avatar" onclick="openProfileEditor()" title="Edit Profile">U</div>
                 <div class="user-details">
                     <strong id="userDisplayName">User</strong>
@@ -164,6 +173,8 @@
             <button class="nav-tab" onclick="switchView('calendar')">📅 Calendar</button>
             <button class="nav-tab" onclick="switchView('analytics')">📈 Analytics</button>
             <button class="nav-tab" onclick="switchView('ai')">🤖 AI Assistant</button>
+            <button class="nav-tab" onclick="switchView('abtesting')">🧪 A/B Testing</button>
+            <button class="nav-tab" onclick="switchView('competitor')">🎯 Competitors</button>
             <button class="nav-tab" onclick="openSettings()">⚙️ Settings</button>
         </nav>
 
@@ -672,6 +683,71 @@
             </div>
         </div>
 
+        <!-- A/B Testing View -->
+        <div id="abtestingView" class="view-container">
+            <h2>🧪 A/B Testing</h2>
+            <p class="info-text">ทดสอบหลาย version เพื่อหาว่าอันไหนปัง - วัดผลแบบวิทยาศาสตร์</p>
+
+            <div class="section-header">
+                <h3>🧪 Active Tests</h3>
+                <button class="btn btn-primary" onclick="createNewABTest()">+ สร้าง A/B Test ใหม่</button>
+            </div>
+
+            <div id="activeTestsList" class="ab-tests-list">
+                <!-- Tests will be rendered here -->
+            </div>
+
+            <div class="section-header">
+                <h3>📊 Completed Tests</h3>
+            </div>
+
+            <div id="completedTestsList" class="ab-tests-list">
+                <!-- Completed tests will be rendered here -->
+            </div>
+
+            <div class="info-box">
+                <h4>💡 A/B Testing Tips</h4>
+                <ul>
+                    <li>ทดสอบทีละ 1 element (title, thumbnail, hashtags, posting time)</li>
+                    <li>ต้องการ sample size อย่างน้อย 100 views per variant</li>
+                    <li>รอให้ confidence level ถึง 95% ก่อนตัดสินใจ</li>
+                    <li>ใช้ผล A/B test ปรับปรุง content strategy ต่อไป</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Competitor Analysis View -->
+        <div id="competitorView" class="view-container">
+            <h2>🎯 Competitor Analysis</h2>
+            <p class="info-text">เฝ้าดูคู่แข่ง วิเคราะห์กลยุทธ์ และเรียนรู้จากคนที่ประสบความสำเร็จ</p>
+
+            <div class="section-header">
+                <h3>👥 Competitors</h3>
+                <button class="btn btn-primary" onclick="addNewCompetitor()">+ เพิ่มคู่แข่ง</button>
+            </div>
+
+            <div id="competitorsList" class="competitors-grid">
+                <!-- Competitors will be rendered here -->
+            </div>
+
+            <div class="section-header">
+                <h3>💡 Insights & Recommendations</h3>
+                <button class="btn btn-secondary" onclick="generateCompetitorInsights()">🔄 Generate Insights</button>
+            </div>
+
+            <div id="competitorInsights" class="insights-container">
+                <!-- Insights will be rendered here -->
+            </div>
+
+            <div class="section-header">
+                <h3>📈 Trending Content</h3>
+            </div>
+
+            <div id="trendingContent" class="trending-content-list">
+                <!-- Trending content will be rendered here -->
+            </div>
+        </div>
+
     </div>
 
     <!-- AI Tool Modal -->
@@ -1011,6 +1087,13 @@
     <script src="automation-config.js"></script>
     <script src="auto-post-manager.js"></script>
     <script src="auto-post-ui.js"></script>
+
+    <!-- 5.2 Phase 3 - Advanced Features -->
+    <script src="ab-testing.js"></script>
+    <script src="competitor-analysis.js"></script>
+    <script src="tiktok-auto-upload.js"></script>
+    <script src="phase3-ui.js"></script>
+    <script src="auto-post-control.js"></script>
 
     <!-- 6. PWA Service Worker Registration -->
     <script>
