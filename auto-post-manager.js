@@ -180,8 +180,22 @@ class AutoPostManager {
             if (this.config.autoCreateVideo) {
                 console.log('🎬 STEP 2/3: Creating Videos...');
 
-                // สำหรับ demo ให้ใช้ mock video
-                videos = contents.map(content => this.createMockVideo(content));
+                // ใช้ AI Video Creator (Production)
+                if (typeof aiVideoCreator !== 'undefined') {
+                    for (const content of contents) {
+                        try {
+                            const video = await aiVideoCreator.create(content);
+                            videos.push(video);
+                            console.log(`  ✓ Created video for "${content.title}"`);
+                        } catch (error) {
+                            console.error(`  ✗ Failed to create video: ${error.message}`);
+                            this.errors.push({ step: 'video-creation', error: error.message, time: new Date() });
+                        }
+                    }
+                } else {
+                    throw new Error('AI Video Creator not available - check configuration');
+                }
+
                 console.log(`✅ Created ${videos.length} videos\n`);
             }
 
@@ -230,9 +244,7 @@ class AutoPostManager {
                     const content = await autoContentGenerator.generateOne();
                     contents.push(content);
                 } else {
-                    // Fallback: สร้าง content แบบง่าย
-                    const content = this.createSimpleContent(i);
-                    contents.push(content);
+                    throw new Error('Auto Content Generator not available - check configuration');
                 }
 
                 console.log(`     ✓ "${contents[i].title}"`);
@@ -251,28 +263,6 @@ class AutoPostManager {
         return contents;
     }
 
-    createSimpleContent(index) {
-        const topics = [
-            'ทำไมต้องไม่หวีผมตอนเย็น?',
-            'ห้ามนอนหัวหนึ่งเท้าหนึ่ง',
-            'ห้ามตัดเล็บตอนกลางคืน',
-            'ห้ามชี้รุ้ง',
-            'ห้ามกวาดบ้านตอนเย็น'
-        ];
-
-        return {
-            id: `auto_${Date.now()}_${index}`,
-            title: topics[index % topics.length],
-            category: 'ความเชื่อ/งมงาย',
-            platform: this.config.platforms,
-            script: `[Auto-generated] เนื้อหาเกี่ยวกับ ${topics[index % topics.length]}`,
-            status: 'ready',
-            hashtags: '#ความเชื่อไทย #วิทยาศาสตร์ #ThaiCulture',
-            createdAt: new Date().toISOString(),
-            generatedBy: 'AutoPostManager'
-        };
-    }
-
     getReadyContent() {
         // ดึง content ที่มี status = ready จาก localStorage
         const allContents = JSON.parse(localStorage.getItem('contents') || '[]');
@@ -284,21 +274,6 @@ class AutoPostManager {
     // ===========================================
     // VIDEO CREATION (MOCK)
     // ===========================================
-
-    createMockVideo(content) {
-        // สร้าง mock video object
-        // ในการใช้งานจริงต้องใช้ aiVideoCreator
-        return {
-            id: `video_${Date.now()}`,
-            contentId: content.id,
-            videoUrl: `blob:mock-video-${content.id}`,
-            thumbnailUrl: `blob:mock-thumb-${content.id}`,
-            duration: 60,
-            resolution: '1080x1920',
-            fileSize: 1024 * 1024 * 5, // 5MB
-            createdAt: new Date().toISOString()
-        };
-    }
 
     // ===========================================
     // POSTING
