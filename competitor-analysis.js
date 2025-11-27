@@ -164,46 +164,62 @@ class CompetitorAnalysis {
     }
 
     // ===========================================
-    // PLATFORM FETCHERS (MOCK - ต้องใช้ API จริง)
+    // PLATFORM FETCHERS (PRODUCTION - API ONLY)
     // ===========================================
 
     async fetchTikTokContent(username) {
         console.log(`📱 Fetching TikTok content from @${username}...`);
 
-        // ⚠️ ในการใช้งานจริง ต้องใช้:
-        // 1. TikTok API (ถ้ามี access)
-        // 2. Web scraping (ระวัง ToS)
-        // 3. Third-party service (RapidAPI, etc.)
+        // ⚠️ TikTok ไม่มี official public API
+        // แนะนำใช้ Third-party API services:
 
-        // Mock data สำหรับ demo
-        return this.generateMockTikTokContent(username);
+        const rapidApiKey = localStorage.getItem('rapidapi_key');
+
+        if (!rapidApiKey) {
+            console.warn('⚠️ ไม่มี RapidAPI Key - ต้องตั้งค่าก่อนใช้งาน');
+            throw new Error('กรุณาตั้งค่า RapidAPI Key ใน Settings');
+        }
+
+        try {
+            // ใช้ RapidAPI TikTok API
+            const response = await fetch(`https://tiktok-api21.p.rapidapi.com/user/posts?username=${username}&count=10`, {
+                method: 'GET',
+                headers: {
+                    'X-RapidAPI-Key': rapidApiKey,
+                    'X-RapidAPI-Host': 'tiktok-api21.p.rapidapi.com'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`TikTok API Error: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            // แปลงเป็น format ที่ใช้งาน
+            return data.videos?.map(video => ({
+                id: video.id,
+                title: video.title || video.desc,
+                description: video.desc,
+                thumbnailUrl: video.cover,
+                videoUrl: video.play,
+                publishedAt: new Date(video.createTime * 1000).toISOString(),
+                views: video.stats?.playCount || 0,
+                likes: video.stats?.diggCount || 0,
+                comments: video.stats?.commentCount || 0,
+                shares: video.stats?.shareCount || 0,
+                hashtags: video.hashtags || [],
+                duration: video.duration || 0,
+                category: 'video'
+            })) || [];
+
+        } catch (error) {
+            console.error('TikTok fetch error:', error);
+            throw new Error('ไม่สามารถดึงข้อมูล TikTok ได้: ' + error.message);
+        }
     }
 
-    generateMockTikTokContent(username) {
-        const mockTopics = [
-            'ความเชื่อไทย',
-            'วิทยาศาสตร์ในชีวิตประจำวัน',
-            'เกร็ดความรู้',
-            'ตำนานและเรื่องเล่า',
-            'ทำไม ทำไง ทำอะไร'
-        ];
 
-        return Array.from({ length: 10 }, (_, i) => ({
-            id: `tiktok_${Date.now()}_${i}`,
-            title: `${mockTopics[i % mockTopics.length]} #${i + 1}`,
-            description: `เนื้อหาเกี่ยวกับ ${mockTopics[i % mockTopics.length]}`,
-            thumbnailUrl: `https://picsum.photos/200/300?random=${i}`,
-            videoUrl: `https://tiktok.com/@${username}/video/${Date.now()}${i}`,
-            publishedAt: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString(),
-            views: Math.floor(Math.random() * 100000) + 10000,
-            likes: Math.floor(Math.random() * 10000) + 1000,
-            comments: Math.floor(Math.random() * 1000) + 100,
-            shares: Math.floor(Math.random() * 500) + 50,
-            hashtags: ['#fyp', '#viral', `#${mockTopics[i % mockTopics.length].replace(' ', '')}`],
-            duration: Math.floor(Math.random() * 30) + 30, // 30-60 วินาที
-            category: mockTopics[i % mockTopics.length]
-        }));
-    }
 
     async fetchYouTubeContent(channelId) {
         console.log(`📹 Fetching YouTube content from channel: ${channelId}...`);
@@ -213,7 +229,7 @@ class CompetitorAnalysis {
 
         if (!apiKey) {
             console.warn('⚠️ ไม่มี YouTube API Key');
-            return this.generateMockYouTubeContent(channelId);
+            throw new Error('กรุณาตั้งค่า YouTube API Key ใน Settings');
         }
 
         try {
@@ -263,11 +279,11 @@ class CompetitorAnalysis {
 
         } catch (error) {
             console.error('YouTube API error:', error);
-            return this.generateMockYouTubeContent(channelId);
+            throw new Error('ไม่สามารถดึงข้อมูล YouTube ได้: ' + error.message);
         }
     }
 
-    generateMockYouTubeContent(channelId) {
+    // REMOVED: Mock functions - Production uses real APIs only
         return Array.from({ length: 10 }, (_, i) => ({
             id: `youtube_${Date.now()}_${i}`,
             title: `YouTube Video ${i + 1}`,
@@ -293,7 +309,7 @@ class CompetitorAnalysis {
 
         if (!accessToken) {
             console.warn('⚠️ ไม่มี Facebook Access Token');
-            return this.generateMockFacebookContent(pageId);
+            throw new Error("API configuration required - no mock data in production");
         }
 
         try {
@@ -327,27 +343,11 @@ class CompetitorAnalysis {
 
         } catch (error) {
             console.error('Facebook API error:', error);
-            return this.generateMockFacebookContent(pageId);
+            throw new Error("API configuration required - no mock data in production");
         }
     }
 
-    generateMockFacebookContent(pageId) {
-        return Array.from({ length: 10 }, (_, i) => ({
-            id: `facebook_${Date.now()}_${i}`,
-            title: `Facebook Video ${i + 1}`,
-            description: 'Mock Facebook content',
-            thumbnailUrl: `https://picsum.photos/640/360?random=${i + 100}`,
-            videoUrl: `https://facebook.com/${pageId}/videos/${Date.now()}${i}`,
-            publishedAt: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString(),
-            views: Math.floor(Math.random() * 200000) + 20000,
-            likes: Math.floor(Math.random() * 20000) + 2000,
-            comments: Math.floor(Math.random() * 2000) + 200,
-            shares: Math.floor(Math.random() * 1000) + 100,
-            hashtags: ['#viral', '#thailand', '#knowledge'],
-            duration: Math.floor(Math.random() * 180) + 60,
-            category: 'video'
-        }));
-    }
+
 
     // ===========================================
     // ANALYSIS
