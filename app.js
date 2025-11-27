@@ -501,7 +501,9 @@ function switchView(view) {
         revenue: 'revenueView',
         calendar: 'calendarView',
         analytics: 'analyticsView',
-        ai: 'aiView'
+        ai: 'aiView',
+        abtesting: 'abtestingView',
+        competitor: 'competitorView'
     };
 
     const viewId = viewMap[view];
@@ -522,6 +524,14 @@ function switchView(view) {
         } else if (view === 'revenue') {
             if (typeof initRevenue === 'function') {
                 initRevenue();
+            }
+        } else if (view === 'abtesting') {
+            if (typeof renderABTestingView === 'function') {
+                renderABTestingView();
+            }
+        } else if (view === 'competitor') {
+            if (typeof renderCompetitorView === 'function') {
+                renderCompetitorView();
             }
         }
     }
