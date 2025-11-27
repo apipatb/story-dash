@@ -283,24 +283,6 @@ class CompetitorAnalysis {
         }
     }
 
-    // REMOVED: Mock functions - Production uses real APIs only
-        return Array.from({ length: 10 }, (_, i) => ({
-            id: `youtube_${Date.now()}_${i}`,
-            title: `YouTube Video ${i + 1}`,
-            description: 'Mock YouTube content',
-            thumbnailUrl: `https://picsum.photos/640/360?random=${i}`,
-            videoUrl: `https://youtube.com/watch?v=${Date.now()}${i}`,
-            publishedAt: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString(),
-            views: Math.floor(Math.random() * 500000) + 50000,
-            likes: Math.floor(Math.random() * 50000) + 5000,
-            comments: Math.floor(Math.random() * 5000) + 500,
-            shares: 0,
-            hashtags: ['#knowledge', '#thai', '#viral'],
-            duration: Math.floor(Math.random() * 300) + 60,
-            category: 'Education'
-        }));
-    }
-
     async fetchFacebookContent(pageId) {
         console.log(`👥 Fetching Facebook content from page: ${pageId}...`);
 
