@@ -637,3 +637,39 @@ function clearAllData() {
         }
     }
 }
+
+// ===========================================
+// UNIVERSAL MODAL CLOSE HANDLER
+// ===========================================
+
+// Close any modal when clicking outside
+window.addEventListener('click', function(event) {
+    if (event.target.classList.contains('modal')) {
+        event.target.style.display = 'none';
+        
+        // Clean up any specific modals
+        if (event.target.id === 'contentModal') {
+            editingId = null;
+        }
+    }
+});
+
+// Close any modal with Escape key
+window.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        const modals = document.querySelectorAll('.modal');
+        modals.forEach(modal => {
+            if (modal.style.display === 'block') {
+                modal.style.display = 'none';
+                
+                // Clean up
+                if (modal.id === 'contentModal') {
+                    editingId = null;
+                }
+            }
+        });
+    }
+});
+
+console.log('🔒 Universal modal handlers loaded');
+
