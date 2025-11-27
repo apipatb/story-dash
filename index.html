@@ -147,6 +147,15 @@
                 <p class="subtitle">จัดการ Content Ideas & Scripts พร้อม AI Assistant</p>
             </div>
             <div class="header-right" id="userInfo" style="display: none;">
+                <!-- Auto-Post Control -->
+                <div class="auto-post-control">
+                    <button id="autoPostToggle" class="btn btn-primary" onclick="toggleAutoPost()" style="margin-right: 10px;">
+                        <span id="autoPostIcon">▶️</span>
+                        <span id="autoPostText">Start Auto-Post</span>
+                    </button>
+                    <span id="autoPostStatus" class="status-badge" style="display: none;">⚪ Stopped</span>
+                </div>
+
                 <div class="user-avatar" onclick="openProfileEditor()" title="Edit Profile">U</div>
                 <div class="user-details">
                     <strong id="userDisplayName">User</strong>
@@ -1084,6 +1093,7 @@
     <script src="competitor-analysis.js"></script>
     <script src="tiktok-auto-upload.js"></script>
     <script src="phase3-ui.js"></script>
+    <script src="auto-post-control.js"></script>
 
     <!-- 6. PWA Service Worker Registration -->
     <script>
