@@ -170,8 +170,18 @@ function renderContents() {
             'facebook': '👥 Facebook'
         };
 
+        const isSelected = selectedContentIds && selectedContentIds.has(content.id);
+        const bulkCheckbox = bulkModeActive ? `
+            <div class="bulk-checkbox ${isSelected ? 'checked' : ''}"
+                 onclick="event.stopPropagation(); toggleContentSelection(${content.id})">
+            </div>
+        ` : '';
+
         return `
-            <div class="content-item status-${content.status}">
+            <div class="content-item status-${content.status}"
+                 data-content-id="${content.id}"
+                 ${bulkModeActive ? `onclick="toggleContentSelection(${content.id})"` : ''}>
+                ${bulkCheckbox}
                 <div class="content-header">
                     <div>
                         <h3 class="content-title">${escapeHtml(content.title)}</h3>
@@ -194,11 +204,11 @@ function renderContents() {
                 ${content.notes ? `<div class="content-info"><span>📝 ${escapeHtml(content.notes)}</span></div>` : ''}
 
                 <div class="content-actions">
-                    <button class="btn btn-edit" onclick="editContent(${content.id})">✏️ แก้ไข</button>
-                    <button class="btn btn-danger" onclick="deleteContent(${content.id})">🗑️ ลบ</button>
+                    <button class="btn btn-edit" onclick="event.stopPropagation(); editContent(${content.id})">✏️ แก้ไข</button>
+                    <button class="btn btn-danger" onclick="event.stopPropagation(); deleteContent(${content.id})">🗑️ ลบ</button>
                     <div class="agent-quick-actions">
-                        <button class="btn-icon" onclick="showSEOOptimizer(${content.id})" title="วิเคราะห์ SEO/Viral">🚀</button>
-                        <button class="btn-icon" onclick="showScriptReviewer(${content.id})" title="ตรวจสอบสคริปต์">📝</button>
+                        <button class="btn-icon" onclick="event.stopPropagation(); showSEOOptimizer(${content.id})" title="วิเคราะห์ SEO/Viral">🚀</button>
+                        <button class="btn-icon" onclick="event.stopPropagation(); showScriptReviewer(${content.id})" title="ตรวจสอบสคริปต์">📝</button>
                     </div>
                 </div>
             </div>
