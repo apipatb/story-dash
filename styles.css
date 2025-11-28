@@ -1710,15 +1710,16 @@ body.dark-mode .toast {
 }
 
 .agent-card {
-    background: white;
-    border: 2px solid var(--border-color);
-    padding: 28px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 1) 0%, rgba(249, 250, 251, 1) 100%);
+    border: 2px solid rgba(102, 126, 234, 0.15);
+    padding: 32px 24px;
     border-radius: 20px;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     text-align: center;
     position: relative;
     overflow: hidden;
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.08);
 }
 
 .agent-card::before {
@@ -4443,13 +4444,31 @@ body.dark-mode small {
 }
 
 body.dark-mode .stat-card {
-    background: #1e293b;
-    border-color: #334155;
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border-color: rgba(102, 126, 234, 0.2);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .stat-card h3 {
+    text-shadow: 0 2px 8px rgba(102, 126, 234, 0.5);
+}
+
+body.dark-mode .stat-card:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+    border-color: var(--primary-color);
 }
 
 body.dark-mode .agent-card {
-    background: #1e293b;
-    border-color: #334155;
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border-color: rgba(102, 126, 234, 0.3);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .agent-card:hover {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+    border-color: var(--primary-color);
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
 }
 
 body.dark-mode .empty-state h3 {
@@ -4872,4 +4891,139 @@ body.dark-mode .subtitle {
 .option-text small {
     color: var(--text-secondary);
     font-size: 0.85rem;
+}
+
+/* Enhanced Dark Mode - Beautiful & Modern */
+body.dark-mode .nav-tabs {
+    background: #1e293b;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+body.dark-mode .nav-tab {
+    color: #cbd5e1;
+}
+
+body.dark-mode .nav-tab:hover {
+    color: var(--primary-color);
+    background: rgba(102, 126, 234, 0.15);
+}
+
+body.dark-mode .nav-tab.active {
+    color: white;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.5);
+}
+
+/* Better Cards in Dark Mode */
+body.dark-mode .content-item {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border-color: rgba(102, 126, 234, 0.2);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .content-item:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+    transform: translateY(-2px);
+}
+
+/* AI Agents Section */
+body.dark-mode .ai-agents-section {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border: 1px solid rgba(102, 126, 234, 0.2);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* Agent Icon Glow Effect */
+body.dark-mode .agent-icon {
+    filter: drop-shadow(0 0 8px rgba(102, 126, 234, 0.3));
+}
+
+body.dark-mode .agent-card:hover .agent-icon {
+    filter: drop-shadow(0 0 12px rgba(102, 126, 234, 0.6));
+}
+
+/* Beautiful Gradient Text */
+body.dark-mode .stat-card.draft h3 {
+    background: linear-gradient(135deg, #fbbf24, #fb923c);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+body.dark-mode .stat-card.ready h3 {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+body.dark-mode .stat-card.posted h3 {
+    background: linear-gradient(135deg, #10b981, #34d399);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+body.dark-mode .stat-card.total h3 {
+    background: linear-gradient(135deg, #a78bfa, #f093fb);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Modal in Dark Mode */
+body.dark-mode .modal-content {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border: 1px solid rgba(102, 126, 234, 0.3);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+/* Toolbar */
+body.dark-mode .toolbar {
+    background: #1e293b;
+    border: 1px solid rgba(102, 126, 234, 0.2);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* Auto-Post Panel */
+body.dark-mode .auto-post-panel {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border: 1px solid rgba(102, 126, 234, 0.2);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .auto-post-card {
+    background: rgba(15, 23, 42, 0.6);
+    border-color: rgba(102, 126, 234, 0.3);
+}
+
+/* Badges */
+body.dark-mode .badge {
+    background: rgba(102, 126, 234, 0.2);
+    color: #e2e8f0;
+}
+
+/* Better Input Focus */
+body.dark-mode input:focus,
+body.dark-mode textarea:focus,
+body.dark-mode select:focus {
+    border-color: var(--primary-color);
+    background: #1e293b;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+/* Buttons */
+body.dark-mode .btn {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+body.dark-mode .btn-primary {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+body.dark-mode .btn-primary:hover {
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
 }
