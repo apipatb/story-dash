@@ -55,12 +55,17 @@
                         <input type="password" id="loginPassword" placeholder="••••••••" required>
                     </div>
 
-                    <button class="btn btn-primary btn-large" onclick="handleLogin()">เข้าสู่ระบบ</button>
+                    <button class="btn btn-primary btn-large" onclick="handleLogin()">
+                        <span>🚀</span> เข้าสู่ระบบ
+                    </button>
 
-                    <div class="auth-divider">หรือ</div>
+                    <div class="auth-divider">
+                        <span>หรือ</span>
+                    </div>
 
-                    <button class="btn btn-google" onclick="handleGoogleLogin()">
-                        <span>🔐</span> เข้าสู่ระบบด้วย Google
+                    <button class="btn btn-google btn-large" onclick="handleGoogleLogin()">
+                        <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/><path fill="#FBBC05" d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707 0-.593.102-1.17.282-1.709V4.958H.957C.347 6.173 0 7.548 0 9c0 1.452.348 2.827.957 4.042l3.007-2.335z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
+                        เข้าสู่ระบบด้วย Google
                     </button>
 
                     <p class="auth-switch">
@@ -149,6 +154,15 @@
                 <p class="subtitle">จัดการ Content Ideas & Scripts พร้อม AI Assistant</p>
             </div>
             <div class="header-right" id="userInfo" style="display: none;">
+                <!-- Auto-Post Control -->
+                <div class="auto-post-control">
+                    <button id="autoPostToggle" class="btn btn-primary" onclick="toggleAutoPost()" style="margin-right: 10px;">
+                        <span id="autoPostIcon">▶️</span>
+                        <span id="autoPostText">Start Auto-Post</span>
+                    </button>
+                    <span id="autoPostStatus" class="status-badge" style="display: none;">⚪ Stopped</span>
+                </div>
+
                 <div class="user-avatar" onclick="openProfileEditor()" title="Edit Profile">U</div>
                 <div class="user-details">
                     <strong id="userDisplayName">User</strong>
@@ -166,6 +180,8 @@
             <button class="nav-tab" onclick="switchView('calendar')">📅 Calendar</button>
             <button class="nav-tab" onclick="switchView('analytics')">📈 Analytics</button>
             <button class="nav-tab" onclick="switchView('ai')">🤖 AI Assistant</button>
+            <button class="nav-tab" onclick="switchView('abtesting')">🧪 A/B Testing</button>
+            <button class="nav-tab" onclick="switchView('competitor')">🎯 Competitors</button>
             <button class="nav-tab" onclick="openSettings()">⚙️ Settings</button>
         </nav>
 
@@ -212,9 +228,112 @@
             </div>
         </div>
 
+        <!-- Auto-Posting Control Panel -->
+        <div class="auto-post-panel">
+            <div class="auto-post-header">
+                <div class="auto-post-title">
+                    <h3>🚀 Auto-Posting System</h3>
+                    <p>ระบบสร้างและโพสต์คอนเทนต์อัตโนมัติ</p>
+                </div>
+                <div class="auto-post-toggle-container">
+                    <button id="auto-post-toggle" class="btn btn-large" onclick="toggleAutoPost()">
+                        <span id="auto-post-toggle-text">▶️ Start Auto-Post</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="auto-post-body">
+                <div class="auto-post-status-grid">
+                    <!-- Status Card -->
+                    <div class="auto-post-card status-card">
+                        <div class="card-icon">🔄</div>
+                        <div class="card-content">
+                            <h4>สถานะ</h4>
+                            <div id="auto-post-status" class="status-badge stopped">⚪ Stopped</div>
+                            <p class="status-detail" id="auto-post-status-detail">ระบบยังไม่เริ่มทำงาน</p>
+                        </div>
+                    </div>
+
+                    <!-- Next Run Card -->
+                    <div class="auto-post-card">
+                        <div class="card-icon">⏰</div>
+                        <div class="card-content">
+                            <h4>รอบถัดไป</h4>
+                            <div id="auto-post-next-run" class="value">-</div>
+                            <p class="label">เวลาสร้างคอนเทนต์รอบถัดไป</p>
+                        </div>
+                    </div>
+
+                    <!-- Stats Card -->
+                    <div class="auto-post-card">
+                        <div class="card-icon">📊</div>
+                        <div class="card-content">
+                            <h4>สถิติวันนี้</h4>
+                            <div id="auto-post-today-stats" class="stats-mini">
+                                <span>Generated: <strong id="today-generated">0</strong></span>
+                                <span>Posted: <strong id="today-posted">0</strong></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Total Stats Card -->
+                    <div class="auto-post-card">
+                        <div class="card-icon">🎯</div>
+                        <div class="card-content">
+                            <h4>สถิติรวม</h4>
+                            <div id="auto-post-total-stats" class="stats-mini">
+                                <span>Total: <strong id="total-generated">0</strong></span>
+                                <span>Posted: <strong id="total-posted">0</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Config -->
+                <div class="auto-post-config">
+                    <div class="config-row">
+                        <label>
+                            <span>📹 Videos/วัน:</span>
+                            <input type="number" id="videos-per-day" min="1" max="10" value="3" onchange="updateAutoPostConfig()">
+                        </label>
+                        <label>
+                            <span>⏰ เวลาสร้าง:</span>
+                            <input type="time" id="daily-run-time" value="06:00" onchange="updateAutoPostConfig()">
+                        </label>
+                        <label>
+                            <span>📱 Platforms:</span>
+                            <select id="auto-platforms" multiple size="3" onchange="updateAutoPostConfig()">
+                                <option value="youtube" selected>YouTube</option>
+                                <option value="facebook" selected>Facebook</option>
+                                <option value="tiktok" selected>TikTok</option>
+                            </select>
+                        </label>
+                    </div>
+                    <div class="config-actions">
+                        <button class="btn btn-secondary btn-sm" onclick="openAutoPostSettings()">⚙️ ตั้งค่าเพิ่มเติม</button>
+                        <button class="btn btn-sm" onclick="runAutoPostNow()">▶️ Run Now</button>
+                        <button class="btn btn-sm" onclick="viewAutoPostLogs()">📋 Logs</button>
+                    </div>
+                </div>
+
+                <!-- Setup Guide (shown when not configured) -->
+                <div id="auto-post-setup-guide" class="setup-guide" style="display: none;">
+                    <h4>🛠️ Setup Required</h4>
+                    <p>กรุณาตั้งค่าก่อนเริ่มใช้งาน Auto-Posting:</p>
+                    <ol id="setup-checklist">
+                        <li class="incomplete">✗ OpenAI API Key (จำเป็น)</li>
+                        <li class="incomplete">✗ กำหนดจำนวน videos/วัน</li>
+                        <li class="incomplete">✗ เลือก platforms</li>
+                    </ol>
+                    <button class="btn btn-primary" onclick="openAutoPostSettings()">⚙️ เริ่มต้นตั้งค่า</button>
+                </div>
+            </div>
+        </div>
+
         <div class="toolbar">
             <div class="toolbar-left">
-                <button class="btn btn-primary add-content-btn" onclick="openAddModal()">+ เพิ่ม Content</button>
+                <button class="btn quick-post-main-btn" onclick="openQuickPost()">🚀 Quick Post - สร้างและโพสต์เลย!</button>
+                <button class="btn btn-secondary add-content-btn" onclick="openAddModal()">+ เพิ่ม Content</button>
                 <button class="btn btn-secondary" onclick="openTemplateLibrary()" title="Template Library">📝 Templates</button>
                 <button class="btn" id="bulkModeBtn" onclick="toggleBulkMode()" title="Bulk Actions">☐ เลือกหลายรายการ</button>
             </div>
@@ -432,6 +551,7 @@
                 <button class="btn btn-primary" onclick="openMoneyCalculator()">💰 คำนวณรายได้</button>
                 <button class="btn btn-primary" onclick="openPriceCalculator()">💵 คิดราคา Brand Deal</button>
                 <button class="btn btn-primary" onclick="showMoneyAdvisor()">🤖 AI Money Advisor</button>
+                <button class="btn btn-primary" onclick="showOptimalPostingTimes()">⏰ เวลาโพสต์ที่ดีที่สุด</button>
             </div>
 
             <!-- Top Earners -->
@@ -569,6 +689,71 @@
                     <h3>Translator</h3>
                     <p>แปลและปรับแต่งภาษา</p>
                 </div>
+            </div>
+        </div>
+
+        <!-- A/B Testing View -->
+        <div id="abtestingView" class="view-container">
+            <h2>🧪 A/B Testing</h2>
+            <p class="info-text">ทดสอบหลาย version เพื่อหาว่าอันไหนปัง - วัดผลแบบวิทยาศาสตร์</p>
+
+            <div class="section-header">
+                <h3>🧪 Active Tests</h3>
+                <button class="btn btn-primary" onclick="createNewABTest()">+ สร้าง A/B Test ใหม่</button>
+            </div>
+
+            <div id="activeTestsList" class="ab-tests-list">
+                <!-- Tests will be rendered here -->
+            </div>
+
+            <div class="section-header">
+                <h3>📊 Completed Tests</h3>
+            </div>
+
+            <div id="completedTestsList" class="ab-tests-list">
+                <!-- Completed tests will be rendered here -->
+            </div>
+
+            <div class="info-box">
+                <h4>💡 A/B Testing Tips</h4>
+                <ul>
+                    <li>ทดสอบทีละ 1 element (title, thumbnail, hashtags, posting time)</li>
+                    <li>ต้องการ sample size อย่างน้อย 100 views per variant</li>
+                    <li>รอให้ confidence level ถึง 95% ก่อนตัดสินใจ</li>
+                    <li>ใช้ผล A/B test ปรับปรุง content strategy ต่อไป</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Competitor Analysis View -->
+        <div id="competitorView" class="view-container">
+            <h2>🎯 Competitor Analysis</h2>
+            <p class="info-text">เฝ้าดูคู่แข่ง วิเคราะห์กลยุทธ์ และเรียนรู้จากคนที่ประสบความสำเร็จ</p>
+
+            <div class="section-header">
+                <h3>👥 Competitors</h3>
+                <button class="btn btn-primary" onclick="addNewCompetitor()">+ เพิ่มคู่แข่ง</button>
+            </div>
+
+            <div id="competitorsList" class="competitors-grid">
+                <!-- Competitors will be rendered here -->
+            </div>
+
+            <div class="section-header">
+                <h3>💡 Insights & Recommendations</h3>
+                <button class="btn btn-secondary" onclick="generateCompetitorInsights()">🔄 Generate Insights</button>
+            </div>
+
+            <div id="competitorInsights" class="insights-container">
+                <!-- Insights will be rendered here -->
+            </div>
+
+            <div class="section-header">
+                <h3>📈 Trending Content</h3>
+            </div>
+
+            <div id="trendingContent" class="trending-content-list">
+                <!-- Trending content will be rendered here -->
             </div>
         </div>
 
@@ -902,6 +1087,8 @@
     <script src="calendar.js"></script>
     <script src="analytics.js"></script>
     <script src="enhancements.js"></script>
+    <script src="enhancements-pro.js"></script>
+    <script src="quick-post.js"></script>
 
     <!-- 5.1 Automation System -->
     <script src="auto-content-generator.js"></script>
@@ -909,6 +1096,15 @@
     <script src="auto-poster.js"></script>
     <script src="automation-scheduler.js"></script>
     <script src="automation-config.js"></script>
+    <script src="auto-post-manager.js"></script>
+    <script src="auto-post-ui.js"></script>
+
+    <!-- 5.2 Phase 3 - Advanced Features -->
+    <script src="ab-testing.js"></script>
+    <script src="competitor-analysis.js"></script>
+    <script src="tiktok-auto-upload.js"></script>
+    <script src="phase3-ui.js"></script>
+    <script src="auto-post-control.js"></script>
 
     <!-- 6. PWA Service Worker Registration -->
     <script>

@@ -170,8 +170,18 @@ function renderContents() {
             'facebook': '👥 Facebook'
         };
 
+        const isSelected = selectedContentIds && selectedContentIds.has(content.id);
+        const bulkCheckbox = bulkModeActive ? `
+            <div class="bulk-checkbox ${isSelected ? 'checked' : ''}"
+                 onclick="event.stopPropagation(); toggleContentSelection(${content.id})">
+            </div>
+        ` : '';
+
         return `
-            <div class="content-item status-${content.status}">
+            <div class="content-item status-${content.status}"
+                 data-content-id="${content.id}"
+                 ${bulkModeActive ? `onclick="toggleContentSelection(${content.id})"` : ''}>
+                ${bulkCheckbox}
                 <div class="content-header">
                     <div>
                         <h3 class="content-title">${escapeHtml(content.title)}</h3>
@@ -194,11 +204,11 @@ function renderContents() {
                 ${content.notes ? `<div class="content-info"><span>📝 ${escapeHtml(content.notes)}</span></div>` : ''}
 
                 <div class="content-actions">
-                    <button class="btn btn-edit" onclick="editContent(${content.id})">✏️ แก้ไข</button>
-                    <button class="btn btn-danger" onclick="deleteContent(${content.id})">🗑️ ลบ</button>
+                    <button class="btn btn-edit" onclick="event.stopPropagation(); editContent(${content.id})">✏️ แก้ไข</button>
+                    <button class="btn btn-danger" onclick="event.stopPropagation(); deleteContent(${content.id})">🗑️ ลบ</button>
                     <div class="agent-quick-actions">
-                        <button class="btn-icon" onclick="showSEOOptimizer(${content.id})" title="วิเคราะห์ SEO/Viral">🚀</button>
-                        <button class="btn-icon" onclick="showScriptReviewer(${content.id})" title="ตรวจสอบสคริปต์">📝</button>
+                        <button class="btn-icon" onclick="event.stopPropagation(); showSEOOptimizer(${content.id})" title="วิเคราะห์ SEO/Viral">🚀</button>
+                        <button class="btn-icon" onclick="event.stopPropagation(); showScriptReviewer(${content.id})" title="ตรวจสอบสคริปต์">📝</button>
                     </div>
                 </div>
             </div>
@@ -501,7 +511,9 @@ function switchView(view) {
         revenue: 'revenueView',
         calendar: 'calendarView',
         analytics: 'analyticsView',
-        ai: 'aiView'
+        ai: 'aiView',
+        abtesting: 'abtestingView',
+        competitor: 'competitorView'
     };
 
     const viewId = viewMap[view];
@@ -522,6 +534,14 @@ function switchView(view) {
         } else if (view === 'revenue') {
             if (typeof initRevenue === 'function') {
                 initRevenue();
+            }
+        } else if (view === 'abtesting') {
+            if (typeof renderABTestingView === 'function') {
+                renderABTestingView();
+            }
+        } else if (view === 'competitor') {
+            if (typeof renderCompetitorView === 'function') {
+                renderCompetitorView();
             }
         }
     }
@@ -627,3 +647,39 @@ function clearAllData() {
         }
     }
 }
+
+// ===========================================
+// UNIVERSAL MODAL CLOSE HANDLER
+// ===========================================
+
+// Close any modal when clicking outside
+window.addEventListener('click', function(event) {
+    if (event.target.classList.contains('modal')) {
+        event.target.style.display = 'none';
+        
+        // Clean up any specific modals
+        if (event.target.id === 'contentModal') {
+            editingId = null;
+        }
+    }
+});
+
+// Close any modal with Escape key
+window.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        const modals = document.querySelectorAll('.modal');
+        modals.forEach(modal => {
+            if (modal.style.display === 'block') {
+                modal.style.display = 'none';
+                
+                // Clean up
+                if (modal.id === 'contentModal') {
+                    editingId = null;
+                }
+            }
+        });
+    }
+});
+
+console.log('🔒 Universal modal handlers loaded');
+
