@@ -135,6 +135,35 @@ async function handleGoogleLogin() {
     }
 }
 
+// Skip Login - ใช้ LocalStorage แทน Supabase
+function skipLogin() {
+    // ตั้งค่า LocalStorage mode
+    localStorage.setItem('useLocalStorage', 'true');
+    localStorage.setItem('skipSupabase', 'true');
+
+    // สร้าง guest user
+    const guestUser = {
+        id: 'guest-' + Date.now(),
+        email: 'guest@localhost',
+        name: 'Guest User',
+        isGuest: true
+    };
+
+    localStorage.setItem('currentUser', JSON.stringify(guestUser));
+
+    // ซ่อนหน้า auth
+    hideAuthScreen();
+
+    // โหลด contents จาก LocalStorage
+    if (typeof loadContents === 'function') {
+        loadContents();
+    }
+
+    showToast('✅ เข้าสู่ระบบแบบ Guest (ใช้ LocalStorage)', 'success');
+
+    console.log('✅ Skip Login - ใช้ LocalStorage mode');
+}
+
 async function handleLogout() {
     const confirmed = confirm('ต้องการออกจากระบบหรือไม่?');
     if (!confirmed) return;
