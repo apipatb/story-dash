@@ -642,11 +642,303 @@ function analyzeMonetization() {
     return analysis;
 }
 
+// ==================== Revenue Projections ====================
+
+function calculateRevenueProjections() {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+
+    // Get this month's revenue
+    const thisMonthRevenue = contents.filter(c => {
+        if (!c.createdAt) return false;
+        const date = new Date(c.createdAt);
+        return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+    }).reduce((sum, c) => {
+        const rev = c.monetization?.revenue || {};
+        return sum + (rev.ads || 0) + (rev.brand || 0) + (rev.affiliate || 0);
+    }, 0);
+
+    // Calculate daily average
+    const dayOfMonth = now.getDate();
+    const dailyAverage = thisMonthRevenue / dayOfMonth;
+
+    // Project to end of month
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    const projectedMonthlyRevenue = dailyAverage * daysInMonth;
+
+    // Calculate growth rate (compare with last month)
+    const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+    const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+
+    const lastMonthRevenue = contents.filter(c => {
+        if (!c.createdAt) return false;
+        const date = new Date(c.createdAt);
+        return date.getMonth() === lastMonth && date.getFullYear() === lastMonthYear;
+    }).reduce((sum, c) => {
+        const rev = c.monetization?.revenue || {};
+        return sum + (rev.ads || 0) + (rev.brand || 0) + (rev.affiliate || 0);
+    }, 0);
+
+    const growthRate = lastMonthRevenue > 0
+        ? ((thisMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100
+        : 0;
+
+    return {
+        today: dailyAverage,
+        thisMonth: thisMonthRevenue,
+        projected: projectedMonthlyRevenue,
+        lastMonth: lastMonthRevenue,
+        growthRate: growthRate,
+        daysLeft: daysInMonth - dayOfMonth
+    };
+}
+
+function renderRevenueProjections() {
+    const projections = calculateRevenueProjections();
+
+    // Add projections card to revenue stats if it doesn't exist
+    const statsGrid = document.querySelector('.revenue-stats-grid');
+    if (!statsGrid) return;
+
+    // Check if projection card already exists
+    let projectionCard = statsGrid.querySelector('.revenue-stat-card.projection');
+    if (!projectionCard) {
+        // Create projection card
+        projectionCard = document.createElement('div');
+        projectionCard.className = 'revenue-stat-card projection';
+        statsGrid.appendChild(projectionCard);
+    }
+
+    const growthColor = projections.growthRate >= 0 ? '#10b981' : '#ef4444';
+    const growthIcon = projections.growthRate >= 0 ? '📈' : '📉';
+
+    projectionCard.innerHTML = `
+        <div class="stat-icon">📊</div>
+        <h3 id="projectedRevenue">฿${projections.projected.toLocaleString('th-TH', {minimumFractionDigits: 2})}</h3>
+        <p>คาดการณ์สิ้นเดือน</p>
+        <div class="projection-details">
+            <small style="color: ${growthColor}">
+                ${growthIcon} ${projections.growthRate >= 0 ? '+' : ''}${projections.growthRate.toFixed(1)}% vs เดือนที่แล้ว
+            </small>
+        </div>
+    `;
+}
+
+// ==================== Best Performing Content ====================
+
+function renderBestPerformingContent() {
+    const revenueView = document.getElementById('revenueView');
+    if (!revenueView) return;
+
+    // Check if best performing section already exists
+    let bestSection = revenueView.querySelector('.best-performing-section');
+    if (!bestSection) {
+        // Create and insert before top earners
+        bestSection = document.createElement('div');
+        bestSection.className = 'revenue-section best-performing-section';
+        const topEarnersSection = revenueView.querySelector('.revenue-section');
+        if (topEarnersSection) {
+            revenueView.insertBefore(bestSection, topEarnersSection);
+        } else {
+            revenueView.appendChild(bestSection);
+        }
+    }
+
+    // Calculate best performing metrics
+    const performanceData = contents.filter(c => c.status === 'posted').map(content => {
+        const monetization = content.monetization || {};
+        const views = monetization.views || {};
+        const revenue = monetization.revenue || {};
+
+        const totalViews = (views.tiktok || 0) + (views.youtube || 0) + (views.facebook || 0);
+        const totalRevenue = (revenue.ads || 0) + (revenue.brand || 0) + (revenue.affiliate || 0);
+        const rpm = totalViews > 0 ? (totalRevenue / totalViews * 1000) : 0;
+
+        return {
+            ...content,
+            totalViews,
+            totalRevenue,
+            rpm
+        };
+    });
+
+    // Get top by different metrics
+    const topByViews = [...performanceData].sort((a, b) => b.totalViews - a.totalViews).slice(0, 3);
+    const topByRevenue = [...performanceData].sort((a, b) => b.totalRevenue - a.totalRevenue).slice(0, 3);
+    const topByRPM = [...performanceData].filter(c => c.totalViews >= 1000).sort((a, b) => b.rpm - a.rpm).slice(0, 3);
+
+    bestSection.innerHTML = `
+        <h3>🌟 Best Performing Content</h3>
+        <div class="best-performing-grid">
+            <div class="performance-category">
+                <h4>👁️ Most Views</h4>
+                <div class="performance-list">
+                    ${topByViews.length > 0 ? topByViews.map(c => `
+                        <div class="performance-item">
+                            <div class="performance-title">${escapeHtml(c.title)}</div>
+                            <div class="performance-value">${c.totalViews.toLocaleString('th-TH')} views</div>
+                        </div>
+                    `).join('') : '<p class="empty-message">ยังไม่มีข้อมูล views</p>'}
+                </div>
+            </div>
+
+            <div class="performance-category">
+                <h4>💰 Highest Revenue</h4>
+                <div class="performance-list">
+                    ${topByRevenue.length > 0 ? topByRevenue.map(c => `
+                        <div class="performance-item">
+                            <div class="performance-title">${escapeHtml(c.title)}</div>
+                            <div class="performance-value">฿${c.totalRevenue.toLocaleString('th-TH')}</div>
+                        </div>
+                    `).join('') : '<p class="empty-message">ยังไม่มีข้อมูลรายได้</p>'}
+                </div>
+            </div>
+
+            <div class="performance-category">
+                <h4>📊 Best RPM</h4>
+                <div class="performance-list">
+                    ${topByRPM.length > 0 ? topByRPM.map(c => `
+                        <div class="performance-item">
+                            <div class="performance-title">${escapeHtml(c.title)}</div>
+                            <div class="performance-value">฿${c.rpm.toLocaleString('th-TH', {minimumFractionDigits: 2})}/1K</div>
+                        </div>
+                    `).join('') : '<p class="empty-message">ต้องมี views อย่างน้อย 1K</p>'}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// ==================== Auto-Optimize Posting Times ====================
+
+function analyzeOptimalPostingTimes() {
+    const performanceByHour = {};
+    const performanceByDay = {};
+
+    contents.filter(c => c.status === 'posted' && c.schedule).forEach(content => {
+        const date = new Date(content.schedule);
+        const hour = date.getHours();
+        const day = date.getDay(); // 0 = Sunday
+
+        const monetization = content.monetization || {};
+        const views = monetization.views || {};
+        const revenue = monetization.revenue || {};
+
+        const totalViews = (views.tiktok || 0) + (views.youtube || 0) + (views.facebook || 0);
+        const totalRevenue = (revenue.ads || 0) + (revenue.brand || 0) + (revenue.affiliate || 0);
+
+        // Track by hour
+        if (!performanceByHour[hour]) {
+            performanceByHour[hour] = { count: 0, views: 0, revenue: 0 };
+        }
+        performanceByHour[hour].count++;
+        performanceByHour[hour].views += totalViews;
+        performanceByHour[hour].revenue += totalRevenue;
+
+        // Track by day
+        if (!performanceByDay[day]) {
+            performanceByDay[day] = { count: 0, views: 0, revenue: 0 };
+        }
+        performanceByDay[day].count++;
+        performanceByDay[day].views += totalViews;
+        performanceByDay[day].revenue += totalRevenue;
+    });
+
+    // Calculate averages
+    const hourlyStats = Object.entries(performanceByHour).map(([hour, data]) => ({
+        hour: parseInt(hour),
+        avgViews: data.views / data.count,
+        avgRevenue: data.revenue / data.count
+    })).sort((a, b) => b.avgRevenue - a.avgRevenue);
+
+    const dayNames = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
+    const dailyStats = Object.entries(performanceByDay).map(([day, data]) => ({
+        day: parseInt(day),
+        dayName: dayNames[parseInt(day)],
+        avgViews: data.views / data.count,
+        avgRevenue: data.revenue / data.count
+    })).sort((a, b) => b.avgRevenue - a.avgRevenue);
+
+    return { hourlyStats, dailyStats };
+}
+
+function showOptimalPostingTimes() {
+    const { hourlyStats, dailyStats } = analyzeOptimalPostingTimes();
+
+    if (hourlyStats.length === 0) {
+        showToast('ต้องมีข้อมูล content ที่โพสต์แล้วอย่างน้อย 5 ชิ้น', 'warning');
+        return;
+    }
+
+    const bestHours = hourlyStats.slice(0, 3);
+    const bestDays = dailyStats.slice(0, 3);
+
+    const html = `
+        <div class="agent-results">
+            <h2>⏰ Optimal Posting Times</h2>
+            <p class="agent-subtitle">วิเคราะห์จากข้อมูลการโพสต์ของคุณ</p>
+
+            <div class="optimal-times-grid">
+                <div class="optimal-section">
+                    <h3>🕐 Best Hours to Post</h3>
+                    <div class="optimal-list">
+                        ${bestHours.map((item, index) => `
+                            <div class="optimal-item ${index === 0 ? 'best' : ''}">
+                                <div class="optimal-rank">${index + 1}</div>
+                                <div class="optimal-info">
+                                    <div class="optimal-time">${item.hour}:00 น.</div>
+                                    <div class="optimal-stats">
+                                        ${item.avgViews.toLocaleString('th-TH', {maximumFractionDigits: 0})} views avg
+                                        • ฿${item.avgRevenue.toLocaleString('th-TH', {minimumFractionDigits: 2})}
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <div class="optimal-section">
+                    <h3>📅 Best Days to Post</h3>
+                    <div class="optimal-list">
+                        ${bestDays.map((item, index) => `
+                            <div class="optimal-item ${index === 0 ? 'best' : ''}">
+                                <div class="optimal-rank">${index + 1}</div>
+                                <div class="optimal-info">
+                                    <div class="optimal-time">${item.dayName}</div>
+                                    <div class="optimal-stats">
+                                        ${item.avgViews.toLocaleString('th-TH', {maximumFractionDigits: 0})} views avg
+                                        • ฿${item.avgRevenue.toLocaleString('th-TH', {minimumFractionDigits: 2})}
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+
+            <div class="agent-section info">
+                <h3>💡 Recommendations</h3>
+                <ul>
+                    <li>โพสต์ในช่วง ${bestHours[0].hour}:00 น. เพื่อ views และรายได้สูงสุด</li>
+                    <li>วัน${bestDays[0].dayName} ให้ผลตอบรับดีที่สุด</li>
+                    <li>หลีกเลี่ยงช่วงเวลาที่มีผลตอบรับต่ำ</li>
+                    <li>ทดสอบช่วงเวลาใหม่ๆ เป็นระยะเพื่อหาโอกาสเพิ่มเติม</li>
+                </ul>
+            </div>
+        </div>
+    `;
+
+    showAgentModal('Optimal Posting Times', html);
+}
+
 // ==================== Initialize Revenue View ====================
 
 function initRevenue() {
     if (document.getElementById('revenueView')) {
         updateRevenueStats();
+        renderRevenueProjections();
+        renderBestPerformingContent();
         renderTopEarners();
         renderPlatformRevenue();
         renderBrandDeals();
