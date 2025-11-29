@@ -1163,23 +1163,27 @@
                     .catch(err => console.log('❌ Service Worker registration failed:', err));
             }
 
-            // Lazy load heavy features after a short delay (priority to user interaction)
+            // Load AI features IMMEDIATELY for better UX
+            console.log('⚡ Loading AI features immediately...');
+            Promise.all([
+                lazyModules.loadQuickPost(),
+                lazyModules.loadAIFeatures(),
+                lazyModules.loadRevenueFeatures()
+            ]).then(() => {
+                console.log('✅ Core AI features ready!');
+                // Show a quick notification
+                if (typeof showToast === 'function') {
+                    showToast('AI Features พร้อมใช้งานแล้ว! 🚀', 'success');
+                }
+            }).catch(err => {
+                console.error('❌ Error loading AI features:', err);
+            });
+
+            // Load automation and advanced features with slight delay
             setTimeout(() => {
-                // Load features based on user's likely needs
-                lazyModules.loadQuickPost();
-
-                // Load other features with lower priority
-                requestIdleCallback(() => {
-                    lazyModules.loadRevenueFeatures();
-                    lazyModules.loadAIFeatures();
-                }, { timeout: 3000 });
-
-                // Load automation and advanced features last
-                requestIdleCallback(() => {
-                    lazyModules.loadAutomation();
-                    lazyModules.loadAdvancedFeatures();
-                }, { timeout: 5000 });
-            }, 1000);
+                lazyModules.loadAutomation();
+                lazyModules.loadAdvancedFeatures();
+            }, 2000);
         });
 
         // Trigger loading on user interaction with specific features
