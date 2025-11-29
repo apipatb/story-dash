@@ -1061,62 +1061,137 @@
         </div>
     </div>
 
-    <!-- Supabase JS Library -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Supabase JS Library - Async load -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
 
-    <!-- JavaScript - Load order is important! -->
-    <!-- 1. Theme (provides UI utilities like showToast, showLoading) -->
-    <script src="theme.js"></script>
+    <!-- JavaScript - Optimized Loading Strategy -->
+    <!-- Performance optimizations (load first for utilities) -->
+    <script src="performance-optimizations.js"></script>
 
-    <!-- 2. Supabase (database and auth functions) -->
-    <script src="supabase.js"></script>
+    <!-- Critical Path: Load immediately with defer (non-blocking) -->
+    <script src="theme.js" defer></script>
+    <script src="supabase.js" defer></script>
+    <script src="auth.js" defer></script>
+    <script src="app.js" defer></script>
+    <script src="calendar.js" defer></script>
+    <script src="analytics.js" defer></script>
 
-    <!-- 3. Auth (authentication UI logic) -->
-    <script src="auth.js"></script>
-
-    <!-- 4. Core App (content management) -->
-    <script src="app.js"></script>
-
-    <!-- 5. Feature modules -->
-    <script src="ai-helper.js"></script>
-    <script src="ai-agents.js"></script>
-    <script src="ai-agents-extended.js"></script>
-    <script src="revenue.js"></script>
-    <script src="calendar.js"></script>
-    <script src="analytics.js"></script>
-    <script src="enhancements.js"></script>
-    <script src="enhancements-pro.js"></script>
-    <script src="quick-post.js"></script>
-
-    <!-- 5.1 Automation System -->
-    <script src="auto-content-generator.js"></script>
-    <script src="ai-video-creator.js"></script>
-    <script src="auto-poster.js"></script>
-    <script src="automation-scheduler.js"></script>
-    <script src="automation-config.js"></script>
-    <script src="auto-post-manager.js"></script>
-    <script src="auto-post-ui.js"></script>
-
-    <!-- 5.2 Phase 3 - Advanced Features -->
-    <script src="ab-testing.js"></script>
-    <script src="competitor-analysis.js"></script>
-    <script src="tiktok-auto-upload.js"></script>
-    <script src="phase3-ui.js"></script>
-    <script src="auto-post-control.js"></script>
-
-    <!-- 6. PWA Service Worker Registration -->
+    <!-- Lazy Loading Manager -->
     <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
+        // Lazy load modules on-demand for better performance
+        const lazyModules = {
+            loaded: new Set(),
+
+            // Load a script dynamically
+            load(src) {
+                if (this.loaded.has(src)) return Promise.resolve();
+
+                return new Promise((resolve, reject) => {
+                    const script = document.createElement('script');
+                    script.src = src;
+                    script.onload = () => {
+                        this.loaded.add(src);
+                        console.log('✅ Lazy loaded:', src);
+                        resolve();
+                    };
+                    script.onerror = reject;
+                    document.body.appendChild(script);
+                });
+            },
+
+            // Load multiple scripts in order
+            loadMultiple(scripts) {
+                return scripts.reduce((promise, src) =>
+                    promise.then(() => this.load(src)),
+                    Promise.resolve()
+                );
+            },
+
+            // Feature groups for lazy loading
+            async loadAIFeatures() {
+                return this.loadMultiple([
+                    'ai-helper.js',
+                    'ai-agents.js',
+                    'ai-agents-extended.js',
+                    'ai-video-creator.js'
+                ]);
+            },
+
+            async loadRevenueFeatures() {
+                return this.loadMultiple([
+                    'revenue.js',
+                    'enhancements.js',
+                    'enhancements-pro.js'
+                ]);
+            },
+
+            async loadAutomation() {
+                return this.loadMultiple([
+                    'auto-content-generator.js',
+                    'auto-poster.js',
+                    'automation-scheduler.js',
+                    'automation-config.js',
+                    'auto-post-manager.js',
+                    'auto-post-ui.js',
+                    'auto-post-control.js'
+                ]);
+            },
+
+            async loadAdvancedFeatures() {
+                return this.loadMultiple([
+                    'ab-testing.js',
+                    'competitor-analysis.js',
+                    'tiktok-auto-upload.js',
+                    'phase3-ui.js'
+                ]);
+            },
+
+            async loadQuickPost() {
+                return this.load('quick-post.js');
+            }
+        };
+
+        // Make available globally
+        window.lazyModules = lazyModules;
+
+        // Auto-load features after page is interactive
+        window.addEventListener('load', () => {
+            // Register Service Worker
+            if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('✅ Service Worker registered:', registration.scope);
-                    })
-                    .catch(error => {
-                        console.log('❌ Service Worker registration failed:', error);
-                    });
-            });
-        }
+                    .then(reg => console.log('✅ Service Worker registered:', reg.scope))
+                    .catch(err => console.log('❌ Service Worker registration failed:', err));
+            }
+
+            // Lazy load heavy features after a short delay (priority to user interaction)
+            setTimeout(() => {
+                // Load features based on user's likely needs
+                lazyModules.loadQuickPost();
+
+                // Load other features with lower priority
+                requestIdleCallback(() => {
+                    lazyModules.loadRevenueFeatures();
+                    lazyModules.loadAIFeatures();
+                }, { timeout: 3000 });
+
+                // Load automation and advanced features last
+                requestIdleCallback(() => {
+                    lazyModules.loadAutomation();
+                    lazyModules.loadAdvancedFeatures();
+                }, { timeout: 5000 });
+            }, 1000);
+        });
+
+        // Trigger loading on user interaction with specific features
+        document.addEventListener('click', (e) => {
+            const target = e.target.closest('[data-requires-module]');
+            if (target) {
+                const module = target.dataset.requiresModule;
+                if (lazyModules[module]) {
+                    lazyModules[module]();
+                }
+            }
+        });
     </script>
 </body>
 </html>

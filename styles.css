@@ -29,6 +29,42 @@
     --shadow-xl: 0 20px 50px rgba(102, 126, 234, 0.2);
 }
 
+/* ==================== Performance Optimizations ==================== */
+/* Use CSS containment for better rendering performance */
+.content-item,
+.stat-card,
+.agent-card,
+.modal-content {
+    contain: layout style paint;
+}
+
+/* GPU acceleration for animations */
+.btn,
+.content-item,
+.modal,
+.spinner {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}
+
+/* Optimize animations with will-change (use sparingly) */
+.btn:hover,
+.content-item:hover {
+    will-change: transform, box-shadow;
+}
+
+.btn:not(:hover),
+.content-item:not(:hover) {
+    will-change: auto;
+}
+
+/* Reduce repaints with transform instead of position */
+.loading-spinner,
+.spinner {
+    transform: translate3d(0, 0, 0);
+}
+
+/* ==================== Base Styles ==================== */
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
     background: var(--bg-color);
@@ -38,6 +74,10 @@ body {
     color: var(--text-primary);
     line-height: 1.6;
     min-height: 100vh;
+    /* Performance: Reduce font rendering overhead */
+    text-rendering: optimizeSpeed;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 .container {

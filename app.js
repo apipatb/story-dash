@@ -229,8 +229,15 @@ function renderContents() {
     }
 }
 
-// Update statistics
+// Update statistics - Optimized version
 function updateStats() {
+    // Use optimized version if available, fallback to original
+    if (typeof updateStatsOptimized === 'function') {
+        updateStatsOptimized();
+        return;
+    }
+
+    // Fallback (original implementation)
     try {
         const draftCount = contents.filter(c => c.status === 'draft').length;
         const readyCount = contents.filter(c => c.status === 'ready').length;
