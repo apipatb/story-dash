@@ -328,37 +328,75 @@
             </div>
         </div>
 
-        <div class="toolbar">
-            <div class="toolbar-left">
-                <button class="btn quick-post-main-btn" onclick="openQuickPost()">🚀 Quick Post - สร้างและโพสต์เลย!</button>
-                <button class="btn btn-secondary add-content-btn" onclick="openAddModal()">+ เพิ่ม Content</button>
-                <button class="btn btn-secondary" onclick="openTemplateLibrary()" title="Template Library">📝 Templates</button>
-                <button class="btn" id="bulkModeBtn" onclick="toggleBulkMode()" title="Bulk Actions">☐ เลือกหลายรายการ</button>
+        <!-- Simplified Toolbar -->
+        <div class="toolbar toolbar-simplified">
+            <div class="toolbar-main-actions">
+                <button class="btn btn-primary btn-large" onclick="openQuickPost()">
+                    <span class="btn-icon">🚀</span>
+                    <span class="btn-text">สร้าง Content ด้วย AI</span>
+                </button>
+                <button class="btn btn-secondary btn-large" onclick="openAddModal()">
+                    <span class="btn-icon">✍️</span>
+                    <span class="btn-text">เขียนเอง</span>
+                </button>
             </div>
-            <div class="filter-group">
-                <input type="text" id="searchInput" placeholder="🔍 ค้นหา content..." oninput="debounceSearch()" class="search-input">
-                <select id="filterStatus" onchange="filterContent()">
-                    <option value="all">ทั้งหมด</option>
-                    <option value="draft">Draft</option>
-                    <option value="ready">Ready to Post</option>
-                    <option value="posted">Posted</option>
+
+            <div class="toolbar-search">
+                <input type="text" id="searchInput" placeholder="🔍 ค้นหา..." oninput="debounceSearch()" class="search-input-simple">
+            </div>
+
+            <div class="toolbar-filters">
+                <select id="filterStatus" onchange="filterContent()" class="filter-simple">
+                    <option value="all">📋 ทั้งหมด</option>
+                    <option value="draft">✏️ Draft</option>
+                    <option value="ready">✅ Ready</option>
+                    <option value="posted">📤 Posted</option>
                 </select>
-                <select id="filterCategory" onchange="filterContent()">
-                    <option value="all">ทุกหมวด</option>
-                    <option value="superstition">ความเชื่อ/งมงาย</option>
-                    <option value="science">วิทยาศาสตร์</option>
-                    <option value="culture">วัฒนธรรม</option>
-                    <option value="legend">ตำนาน</option>
-                    <option value="other">อื่นๆ</option>
-                </select>
+
+                <button class="btn btn-secondary" onclick="toggleAdvancedTools()" title="เครื่องมือเพิ่มเติม">
+                    <span>⚙️</span>
+                </button>
             </div>
-            <div class="toolbar-right">
-                <button class="btn btn-icon" onclick="showTrendAnalyzer()" title="Trend Analyzer">📈</button>
-                <button class="btn btn-icon" onclick="showCompetitorResearch()" title="Competitor Research">🔍</button>
-                <button class="btn btn-icon" onclick="openCPMCalculator()" title="CPM Calculator">💰</button>
-                <button class="btn btn-icon" onclick="showROIReport()" title="ROI Report">📊</button>
-                <button class="btn btn-icon" onclick="showAchievementsModal()" title="Achievements">🏆</button>
+        </div>
+
+        <!-- Advanced Tools Panel (Hidden by default) -->
+        <div id="advancedToolsPanel" class="advanced-tools-panel" style="display: none;">
+            <div class="advanced-tools-grid">
+                <button class="tool-card" onclick="showTrendAnalyzer()">
+                    <div class="tool-icon">📈</div>
+                    <div class="tool-label">Trend Analyzer</div>
+                </button>
+                <button class="tool-card" onclick="openTemplateLibrary()">
+                    <div class="tool-icon">📝</div>
+                    <div class="tool-label">Templates</div>
+                </button>
+                <button class="tool-card" onclick="toggleBulkMode()">
+                    <div class="tool-icon">☐</div>
+                    <div class="tool-label">จัดการหลายรายการ</div>
+                </button>
+                <button class="tool-card" onclick="showCompetitorResearch()">
+                    <div class="tool-icon">🔍</div>
+                    <div class="tool-label">วิจัยคู่แข่ง</div>
+                </button>
+                <button class="tool-card" onclick="openCPMCalculator()">
+                    <div class="tool-icon">💰</div>
+                    <div class="tool-label">คำนวณรายได้</div>
+                </button>
+                <button class="tool-card" onclick="showROIReport()">
+                    <div class="tool-icon">📊</div>
+                    <div class="tool-label">ROI Report</div>
+                </button>
             </div>
+        </div>
+
+        <!-- Category Filter (Simplified) -->
+        <div class="category-pills">
+            <button class="category-pill active" data-category="all" onclick="filterByCategory('all')">ทั้งหมด</button>
+            <button class="category-pill" data-category="superstition" onclick="filterByCategory('superstition')">🔮 ความเชื่อ</button>
+            <button class="category-pill" data-category="science" onclick="filterByCategory('science')">🔬 วิทยาศาสตร์</button>
+            <button class="category-pill" data-category="culture" onclick="filterByCategory('culture')">🎭 วัฒนธรรม</button>
+            <button class="category-pill" data-category="legend" onclick="filterByCategory('legend')">📖 ตำนาน</button>
+            <button class="category-pill" data-category="other" onclick="filterByCategory('other')">📌 อื่นๆ</button>
         </div>
 
         <div id="contentList" class="content-list">

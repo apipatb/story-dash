@@ -690,3 +690,48 @@ window.addEventListener('keydown', function(event) {
 
 console.log('🔒 Universal modal handlers loaded');
 
+
+// ==================== Simplified UI Functions ====================
+
+// Toggle Advanced Tools Panel
+function toggleAdvancedTools() {
+    const panel = document.getElementById('advancedToolsPanel');
+    if (panel) {
+        if (panel.style.display === 'none') {
+            panel.style.display = 'block';
+            // Smooth scroll into view
+            panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        } else {
+            panel.style.display = 'none';
+        }
+    }
+}
+
+// Filter by Category using Pills
+function filterByCategory(category) {
+    // Update active pill
+    document.querySelectorAll('.category-pill').forEach(pill => {
+        pill.classList.remove('active');
+    });
+    document.querySelector(`[data-category="${category}"]`)?.classList.add('active');
+
+    // Update the hidden select for compatibility
+    const categorySelect = document.getElementById('filterCategory');
+    if (categorySelect) {
+        categorySelect.value = category;
+        filterContent();
+    }
+}
+
+// Show helpful tooltips on first visit
+window.addEventListener('load', () => {
+    const hasSeenTour = localStorage.getItem('hasSeenSimplifiedUITour');
+    if (!hasSeenTour && typeof showToast === 'function') {
+        setTimeout(() => {
+            showToast('💡 ใช้ปุ่ม "🚀 สร้าง Content ด้วย AI" เพื่อเริ่มต้น!', 'info', 5000);
+            localStorage.setItem('hasSeenSimplifiedUITour', 'true');
+        }, 2000);
+    }
+});
+
+console.log('✅ Simplified UI loaded');
